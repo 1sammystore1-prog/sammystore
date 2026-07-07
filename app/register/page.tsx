@@ -16,6 +16,8 @@ export default function RegisterPage() {
     setLoading(true);
     setMsg('');
     
+    console.log('Starting registration...');
+    
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -23,7 +25,9 @@ export default function RegisterPage() {
         body: JSON.stringify(formData)
       });
       
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
       
       if (data.success) {
         setMsg('Account created! Redirecting...');
@@ -33,8 +37,9 @@ export default function RegisterPage() {
       } else {
         setMsg(data.error || 'Registration failed');
       }
-    } catch (err) {
-      setMsg('Connection error');
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      setMsg('Error: ' + err.message);
     }
     
     setLoading(false);
