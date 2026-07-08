@@ -14,8 +14,10 @@ export async function fiveSimRequest(endpoint: string, method: 'GET' | 'POST' = 
     url,
     headers: {
       'Authorization': `Bearer ${apiKey}`,
-      'Accept': 'application/json'
-    }
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    timeout: 10000
   };
 
   if (method === 'GET') {
@@ -28,12 +30,20 @@ export async function fiveSimRequest(endpoint: string, method: 'GET' | 'POST' = 
     const response = await axios(config);
     return response.data;
   } catch (error: any) {
-    console.error('5sim API Error:', {
+    // Log detailed error for debugging
+    const errorDetails = {
       url,
+      method,
       status: error.response?.status,
+      statusText: error.response?.statusText,
       data: error.response?.data,
       message: error.message
-    });
-    throw new Error(`5sim API error: ${error.response?.status || 'Unknown'} - ${error.message}`);
+    };
+    console.error('5sim API Error:', JSON.stringify(errorDetails, null, 2));
+    
+    if (error.response?.status === 404) {
+      throw new Error('5sim: Account may have no balance or invalid endpoint');
+    }
+    throw new Error(`5sim API error (${error.response?.status || 'Unknown'}): ${error.message}`);
   }
 }
