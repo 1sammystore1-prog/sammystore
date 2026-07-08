@@ -1,26 +1,47 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 
 export default function AccountsPage() {
-  const [accountType, setAccountType] = useState('gmail');
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState('');
-  const [accountData, setAccountData] = useState<any>(null);
   const [balance, setBalance] = useState(0);
+  const [accountData, setAccountData] = useState<any>(null);
+  const [buying, setBuying] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/accounts/products');
+        const data = await res.json();
+        if (data.success) {
+          // DanOTP might return an object or array, we normalize it
+          const prodList = Array.isArray(data.products) ? data.products : Object.values(data.products);
+          setProducts(prodList);
+        }
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+      setLoading(false);
+    };
+    fetchProducts();
+  }, []);
 
   const handleBuy = async () => {
-    setLoading(true);
+    if (!selectedProduct) return;
+    setBuying(true);
     setMsg('');
     setAccountData(null);
     
     const token = localStorage.getItem('token');
     if (!token) {
       setMsgType('error');
-      setMsg('Please login to buy accounts.');
-      setLoading(false);
+      setMsg('Please login');
+      setBuying(false);
       return;
     }
 
@@ -31,23 +52,28 @@ export default function AccountsPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ accountType })
+        body: JSON.stringify({ 
+          productId: selectedProduct.id,
+          amount: 1,
+          price: selectedProduct.price 
+        })
       });
       const data = await res.json();
+      
       if (data.success) {
         setMsgType('success');
         setMsg(data.message);
-        setAccountData(data.account);
+        setAccountData(data.accountData);
         setBalance(data.newBalance);
       } else {
         setMsgType('error');
-        setMsg(data.error || 'Purchase Failed');
+        setMsg(data.error);
       }
     } catch (e) {
       setMsgType('error');
-      setMsg('Network Error');
+      setMsg('Network error');
     }
-    setLoading(false);
+    setBuying(false);
   };
 
   return (
@@ -59,52 +85,59 @@ export default function AccountsPage() {
           <div className="mb-8">
             <p className="terminal-text text-sm mb-2">{`> MODULE: ACCOUNT_MARKET`}</p>
             <h1 className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">BUY ACCOUNTS</h1>
-            {balance > 0 && <p className="text-[#00ff88] font-mono mt-2">Current Balance: ₦{balance}</p>}
+            {balance > 0 && <p className="text-[#00ff88] font-mono mt-2">Balance: ₦{balance}</p>}
           </div>
-          <div className="card-dark max-w-2xl">
-            <div className="mb-6">
-              <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_ACCOUNT_TYPE`}</label>
-              <select value={accountType} onChange={(e) => setAccountType(e.target.value)} className="input-dark">
-                <option value="gmail">GMAIL (AGED)</option>
-                <option value="whatsapp">WHATSAPP (VERIFIED)</option>
-                <option value="facebook">FACEBOOK (FARMED)</option>
-                <option value="twitter">TWITTER/X</option>
-              </select>
-            </div>
-            <div className="mb-6 p-4 bg-[#1a1a25] rounded border border-[#2a2a3a]">
-              <p className="text-[#a0a0b0] text-sm font-mono">{`> PRICE: `}<span className="text-[#ffd700] font-bold">₦1,500.00</span></p>
-              <p className="text-[#a0a0b0] text-sm font-mono mt-1">{`> STOCK: `}<span className="text-[#00ff88] font-bold">AVAILABLE</span></p>
-            </div>
-            <button onClick={handleBuy} disabled={loading} className="btn-neon-green w-full">
-              {loading ? 'SECURING ACCOUNT...' : 'PURCHASE ACCOUNT'}
-            </button>
-            
-            {msg && (
-              <div className={`mt-6 p-4 rounded text-center border ${msgType === 'success' ? 'border-[#ffd700] bg-[#ffd700]/10 text-[#ffd700]' : 'border-[#ff2a6d] bg-[#ff2a6d]/10 text-[#ff2a6d]'}`}>
-                <p className="font-mono font-bold">{msg}</p>
-              </div>
-            )}
 
-            {accountData && (
-              <div className="mt-6 p-6 border border-[#00ff88]/30 bg-[#00ff88]/5 rounded-lg">
-                <h3 className="text-[#00ff88] font-mono mb-4 text-lg">{`> ACCOUNT_ACQUIRED:`}</h3>
-                <div className="space-y-3 font-mono text-sm">
-                  <div>
-                    <span className="text-[#a0a0b0]">{`> EMAIL: `}</span>
-                    <span className="text-[#e0e0e0]">{accountData.email}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#a0a0b0]">{`> PASSWORD: `}</span>
-                    <span className="text-[#e0e0e0]">{accountData.password}</span>
-                  </div>
-                  <div>
-                    <span className="text-[#a0a0b0]">{`> RECOVERY: `}</span>
-                    <span className="text-[#e0e0e0]">{accountData.recovery}</span>
+          {loading ? (
+            <p className="text-[#a0a0b0] font-mono">Loading stock...</p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {products.map((product: any) => (
+                <div 
+                  key={product.id} 
+                  onClick={() => setSelectedProduct(product)}
+                  className={`card-dark cursor-pointer border-2 transition-all ${
+                    selectedProduct?.id === product.id 
+                      ? 'border-[#00ff88] bg-[#00ff88]/5' 
+                      : 'border-[#2a2a3a]'
+                  }`}
+                >
+                  <h3 className="text-xl font-bold text-[#e0e0e0] mb-2">{product.name || product.title}</h3>
+                  <p className="text-[#ffd700] font-mono text-lg mb-2">₦{product.price}</p>
+                  <p className="text-[#00ff88] text-sm font-mono">{product.stock || 'In Stock'} available</p>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {selectedProduct && (
+            <div className="card-dark max-w-2xl">
+              <h3 className="text-2xl font-bold text-[#00f5ff] mb-4">{selectedProduct.name || selectedProduct.title}</h3>
+              <p className="text-[#ffd700] font-mono text-2xl mb-4">₦{selectedProduct.price}</p>
+              <button onClick={handleBuy} disabled={buying} className="btn-neon-green w-full">
+                {buying ? 'SECURING ACCOUNT...' : 'PURCHASE NOW'}
+              </button>
+              
+              {msg && (
+                <div className={`mt-6 p-4 rounded text-center border ${
+                  msgType === 'success' 
+                    ? 'border-[#00ff88] bg-[#00ff88]/10 text-[#00ff88]' 
+                    : 'border-[#ff2a6d] bg-[#ff2a6d]/10 text-[#ff2a6d]'
+                }`}>
+                  <p className="font-mono font-bold">{msg}</p>
+                </div>
+              )}
+
+              {accountData && (
+                <div className="mt-6 p-6 border border-[#00ff88]/30 bg-[#00ff88]/5 rounded-lg">
+                  <h3 className="text-[#00ff88] font-mono mb-4">{`> ACCOUNT_ACQUIRED:`}</h3>
+                  <div className="font-mono text-sm text-[#e0e0e0] break-all">
+                    {typeof accountData === 'object' ? JSON.stringify(accountData, null, 2) : accountData}
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </main>
       </div>
     </div>
