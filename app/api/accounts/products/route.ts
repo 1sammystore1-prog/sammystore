@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json({ 
       success: false, 
       error: 'API key not configured',
-      debug: 'Add YOUR_DANOTP_API_KEY to your environment variables'
+      products: [] 
     }, { status: 500 });
   }
 
@@ -16,19 +16,17 @@ export async function GET() {
     
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: { 'Accept': 'application/json' },
       cache: 'no-store'
     });
 
     const text = await response.text();
     
     if (!response.ok) {
-      return NextResponse.json({
-        success: false,
+      return NextResponse.json({ 
+        success: false, 
         error: `HTTP ${response.status}`,
-        rawResponse: text.substring(0, 300)
+        rawResponse: text.substring(0, 200)
       }, { status: response.status });
     }
 
@@ -36,21 +34,40 @@ export async function GET() {
     try {
       data = JSON.parse(text);
     } catch {
-      return NextResponse.json({
-        success: false,
+      return NextResponse.json({ 
+        success: false, 
         error: 'Invalid JSON response',
         rawResponse: text.substring(0, 300)
       }, { status: 500 });
     }
 
-    // Handle different response formats
+    // Extract products from categories structure
     let products = [];
+    
     if (Array.isArray(data)) {
       products = data;
     } else if (data && typeof data === 'object') {
-      if (Array.isArray(data.data)) products = data.data;
-      else if (Array.isArray(data.products)) products = data.products;
-      else if (data.product) products = [data.product];
+      // Check if products are in categories
+      if (Array.isArray(data.categories)) {
+        data.categories.forEach((category: any) => {
+          if (Array.isArray(category.products)) {
+            category.products.forEach((product: any) => {
+              products.push({
+                ...product,
+                category: category.name
+              });
+            });
+          }
+        });
+      }
+      // Also check direct products array
+      else if (Array.isArray(data.products)) {
+        products = data.products;
+      }
+      // Check single product object
+      else if (data.product && typeof data.product === 'object') {
+        products = [data.product];
+      }
     }
 
     return NextResponse.json({
@@ -61,10 +78,10 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    return NextResponse.json({
-      success: false,
+    return NextResponse.json({ 
+      success: false, 
       error: error.message || 'Network error',
-      products: []
+      products: [] 
     }, { status: 500 });
   }
 }
