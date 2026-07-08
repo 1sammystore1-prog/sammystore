@@ -99,7 +99,7 @@ export default function AccountsPage() {
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#00f5ff] mx-auto mb-4"></div>
-          <p className="text-[#00ff88] font-mono">Loading products from DanOTP...</p>
+          <p className="text-[#00ff88] font-mono">Loading products...</p>
         </div>
       </div>
     );
