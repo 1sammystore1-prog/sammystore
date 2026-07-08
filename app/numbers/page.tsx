@@ -3,93 +3,125 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 
-export default function NumbersPage() {
-  const [server, setServer] = useState('1');
+export default function VirtualNumbersPage() {
+  const [selectedServer, setSelectedServer] = useState('usa1');
   const [services, setServices] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
-  const [service, setService] = useState('');
-  const [country, setCountry] = useState('');
-  const [maxPrice, setMaxPrice] = useState('500');
+  const [selectedService, setSelectedService] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [carrier, setCarrier] = useState('');
+  const [areaCode, setAreaCode] = useState('');
+  const [duration, setDuration] = useState('1D');
+  const [quantity, setQuantity] = useState('1');
+  const [pool, setPool] = useState('1');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [operator, setOperator] = useState('');
+  const [ref, setRef] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checkingSms, setCheckingSms] = useState(false);
-  const [currentNumber, setCurrentNumber] = useState<any>(null);
-  const [smsCode, setSmsCode] = useState('');
+  const [purchasing, setPurchasing] = useState(false);
   const [msg, setMsg] = useState('');
+  const [msgType, setMsgType] = useState('');
   const [balance, setBalance] = useState(0);
+  const [orderData, setOrderData] = useState<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (server === '1') {
-          const [servicesRes, countriesRes] = await Promise.all([
-            fetch('/api/danotp/services'),
-            fetch('/api/danotp/countries')
-          ]);
-          
-          const servicesData = await servicesRes.json();
-          const countriesData = await countriesRes.json();
-          
-          if (servicesData.success) {
-            setServices(servicesData.services);
-            if (servicesData.services.length > 0) {
-              setService(servicesData.services[0].slug || servicesData.services[0].id);
-            }
-          }
-          
-          if (countriesData.success) {
-            setCountries(countriesData.countries);
-            if (countriesData.countries.length > 0) {
-              setCountry(countriesData.countries[0].code || countriesData.countries[0].id);
-            }
-          }
-        } else {
-          const [servicesRes, countriesRes] = await Promise.all([
-            fetch('/api/danotp/server2/services?country=US'),
-            fetch('/api/danotp/server2/countries')
-          ]);
-          
-          const servicesData = await servicesRes.json();
-          const countriesData = await countriesRes.json();
-          
-          if (servicesData.success) {
-            setServices(servicesData.services);
-            if (servicesData.services.length > 0) {
-              setService(servicesData.services[0].slug || servicesData.services[0].id);
-            }
-          }
-          
-          if (countriesData.success) {
-            setCountries(countriesData.countries);
-            if (countriesData.countries.length > 0) {
-              setCountry(countriesData.countries[0].code || countriesData.countries[0].id);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      }
-    };
-    fetchData();
-  }, [server]);
+    fetchServices();
+    if (selectedServer !== 'usa1') {
+      fetchCountries();
+    }
+  }, [selectedServer]);
 
-  const buyNumber = async () => {
+  const fetchServices = async () => {
     setLoading(true);
+    try {
+      let endpoint = '';
+      switch(selectedServer) {
+        case 'usa1':
+          endpoint = '/api/numbers/usa-server1?action=getServices';
+          break;
+        case 'all1':
+          endpoint = '/api/numbers/all-countries-server1?action=getServices';
+          break;
+        case 'all2':
+          endpoint = '/api/numbers/all-countries-server2?action=getServices&country=US';
+          break;
+      }
+      
+      const res = await fetch(endpoint);
+      const data = await res.json();
+      if (data.services) {
+        setServices(Array.isArray(data.services) ? data.services : [data.services]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch services:', error);
+    }
+    setLoading(false);
+  };
+
+  const fetchCountries = async () => {
+    try {
+      let endpoint = '';
+      switch(selectedServer) {
+        case 'all1':
+          endpoint = '/api/numbers/all-countries-server1?action=getCountries';
+          break;
+        case 'all2':
+          endpoint = '/api/numbers/all-countries-server2?action=getCountries';
+          break;
+      }
+      
+      if (endpoint) {
+        const res = await fetch(endpoint);
+        const data = await res.json();
+        if (data.countries) {
+          setCountries(Array.isArray(data.countries) ? data.countries : [data.countries]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch countries:', error);
+    }
+  };
+
+  const purchaseNumber = async () => {
+    setPurchasing(true);
     setMsg('');
-    setCurrentNumber(null);
-    setSmsCode('');
+    setOrderData(null);
 
     const token = localStorage.getItem('token');
     if (!token) {
-      setMsg('Please login to acquire a number.');
-      setLoading(false);
+      setMsgType('error');
+      setMsg('Please login to purchase');
+      setPurchasing(false);
       return;
     }
 
     try {
-      const endpoint = server === '1' ? '/api/numbers/get' : '/api/numbers/server2/get';
-      const body = server === '1' 
-        ? { service, country, quantity: 1 }
-        : { service, country, maxPrice };
+      let endpoint = '';
+      let body: any = { service: selectedService };
+
+      switch(selectedServer) {
+        case 'usa1':
+          endpoint = '/api/numbers/usa-server1';
+          body.country = 'usa';
+          if (carrier) body.carrier = carrier;
+          if (areaCode) body.area_codes = areaCode;
+          if (duration) body.duration = duration;
+          break;
+        case 'all1':
+          endpoint = '/api/numbers/all-countries-server1';
+          body.country = selectedCountry;
+          if (quantity) body.quantity = quantity;
+          if (areaCode) body.areacode = areaCode;
+          if (pool) body.pool = pool;
+          break;
+        case 'all2':
+          endpoint = '/api/numbers/all-countries-server2';
+          body.country = selectedCountry;
+          if (maxPrice) body.maxPrice = maxPrice;
+          if (operator) body.operator = operator;
+          if (ref) body.ref = ref;
+          break;
+      }
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -99,45 +131,31 @@ export default function NumbersPage() {
         },
         body: JSON.stringify(body)
       });
+
       const data = await res.json();
       
-      if (data.success) {
-        setCurrentNumber(data);
-        setBalance(data.newBalance);
-        setMsg('Number acquired! Click "Check SMS" to get code.');
+      if (data.success || data.order_id) {
+        setMsgType('success');
+        setMsg('Number acquired successfully!');
+        setOrderData(data);
       } else {
-        setMsg(data.error || 'Failed to acquire number');
+        setMsgType('error');
+        setMsg(data.error || 'Purchase failed');
       }
-    } catch (e) {
-      setMsg('Network error');
+    } catch (error: any) {
+      setMsgType('error');
+      setMsg('Network error: ' + error.message);
     }
-    setLoading(false);
+    setPurchasing(false);
   };
 
-  const checkSms = async () => {
-    if (!currentNumber?.orderId) return;
-    setCheckingSms(true);
-    setMsg('');
-    
-    try {
-      const endpoint = server === '1' ? '/api/numbers/sms' : '/api/numbers/server2/sms';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: currentNumber.orderId })
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        setSmsCode(data.sms);
-        setMsg('SMS Received!');
-      } else {
-        setMsg(data.error || 'No SMS yet. Try again in 10 seconds.');
-      }
-    } catch (e) {
-      setMsg('Network error');
+  const getServerName = () => {
+    switch(selectedServer) {
+      case 'usa1': return 'USA Server 1';
+      case 'all1': return 'All Countries Server 1';
+      case 'all2': return 'All Countries Server 2';
+      default: return '';
     }
-    setCheckingSms(false);
   };
 
   return (
@@ -148,82 +166,238 @@ export default function NumbersPage() {
         <main className="flex-1 p-6 md:p-8">
           <div className="mb-8">
             <p className="terminal-text text-sm mb-2">{`> MODULE: VIRTUAL_NUMBERS`}</p>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">ACQUIRE NUMBER</h1>
-            {balance > 0 && <p className="text-[#00ff88] font-mono mt-2">Current Balance: ₦{balance}</p>}
+            <h1 className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">BUY VIRTUAL NUMBERS</h1>
+            {balance > 0 && <p className="text-[#00ff88] font-mono mt-2">Balance: ₦{balance}</p>}
           </div>
+
+          {/* Server Selection Buttons */}
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <button
+              onClick={() => setSelectedServer('usa1')}
+              className={`p-4 rounded-lg border-2 font-bold transition-all ${
+                selectedServer === 'usa1'
+                  ? 'border-[#00ff88] bg-[#00ff88]/20 text-[#00ff88]'
+                  : 'border-[#2a2a3a] bg-[#1a1a25] text-[#a0a0b0] hover:border-[#00f5ff]'
+              }`}
+            >
+              🇺🇸 USA Server 1
+            </button>
+            <button
+              onClick={() => setSelectedServer('all1')}
+              className={`p-4 rounded-lg border-2 font-bold transition-all ${
+                selectedServer === 'all1'
+                  ? 'border-[#00f5ff] bg-[#00f5ff]/20 text-[#00f5ff]'
+                  : 'border-[#2a2a3a] bg-[#1a1a25] text-[#a0a0b0] hover:border-[#00f5ff]'
+              }`}
+            >
+              🌍 All Countries Server 1
+            </button>
+            <button
+              onClick={() => setSelectedServer('all2')}
+              className={`p-4 rounded-lg border-2 font-bold transition-all ${
+                selectedServer === 'all2'
+                  ? 'border-[#ffd700] bg-[#ffd700]/20 text-[#ffd700]'
+                  : 'border-[#2a2a3a] bg-[#1a1a25] text-[#a0a0b0] hover:border-[#00f5ff]'
+              }`}
+            >
+              🌐 All Countries Server 2
+            </button>
+          </div>
+
           <div className="card-dark max-w-2xl">
-            <div className="mb-6">
-              <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_SERVER`}</label>
-              <select value={server} onChange={(e) => setServer(e.target.value)} className="input-dark">
-                <option value="1">ALL COUNTRIES SERVER 1</option>
-                <option value="2">ALL COUNTRIES SERVER 2</option>
-              </select>
-            </div>
+            <h2 className="text-2xl font-bold text-[#00f5ff] mb-6">{getServerName()}</h2>
+
+            {/* Service Selection */}
             <div className="mb-6">
               <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_SERVICE`}</label>
-              <select value={service} onChange={(e) => setService(e.target.value)} className="input-dark">
-                {services.length === 0 ? (
-                  <option value="">Loading services...</option>
-                ) : (
-                  services.map((s) => (
-                    <option key={s.id} value={s.slug || s.id}>
-                      {s.name}
-                    </option>
-                  ))
-                )}
+              <select
+                value={selectedService}
+                onChange={(e) => setSelectedService(e.target.value)}
+                className="input-dark"
+              >
+                <option value="">Choose a service...</option>
+                {services.map((service: any, idx: number) => (
+                  <option key={idx} value={service.id || service.slug || service}>
+                    {service.name || service}
+                  </option>
+                ))}
               </select>
             </div>
-            <div className="mb-6">
-              <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_COUNTRY`}</label>
-              <select value={country} onChange={(e) => setCountry(e.target.value)} className="input-dark">
-                {countries.length === 0 ? (
-                  <option value="">Loading countries...</option>
-                ) : (
-                  countries.map((c) => (
-                    <option key={c.code || c.id} value={c.code || c.id}>
-                      {c.flag} {c.name}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-            {server === '2' && (
+
+            {/* Country Selection (for All Countries servers) */}
+            {selectedServer !== 'usa1' && (
               <div className="mb-6">
-                <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> MAX_PRICE (NGN)`}</label>
-                <input 
-                  type="number" 
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
+                <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_COUNTRY`}</label>
+                <select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
                   className="input-dark"
-                />
+                >
+                  <option value="">Choose a country...</option>
+                  {countries.map((country: any, idx: number) => (
+                    <option key={idx} value={country.code || country.id || country}>
+                      {country.flag ? country.flag + ' ' : ''}{country.name || country}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
-            <button onClick={buyNumber} disabled={loading} className="btn-neon-green w-full">
-              {loading ? 'ACQUIRING...' : `ACQUIRE NUMBER - ₦${maxPrice || 500}`}
+
+            {/* USA Server 1 Specific Fields */}
+            {selectedServer === 'usa1' && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> CARRIER (Optional)`}</label>
+                  <input
+                    type="text"
+                    value={carrier}
+                    onChange={(e) => setCarrier(e.target.value)}
+                    placeholder="e.g., Verizon"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> AREA CODE (Optional)`}</label>
+                  <input
+                    type="text"
+                    value={areaCode}
+                    onChange={(e) => setAreaCode(e.target.value)}
+                    placeholder="e.g., 212"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> DURATION`}</label>
+                  <select
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    className="input-dark"
+                  >
+                    <option value="1D">1 Day</option>
+                    <option value="3D">3 Days</option>
+                    <option value="7D">7 Days</option>
+                    <option value="15D">15 Days</option>
+                    <option value="30D">30 Days</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* All Countries Server 1 Specific Fields */}
+            {selectedServer === 'all1' && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> QUANTITY`}</label>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    placeholder="1"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> AREA CODE (Optional)`}</label>
+                  <input
+                    type="text"
+                    value={areaCode}
+                    onChange={(e) => setAreaCode(e.target.value)}
+                    placeholder="e.g., 212"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> POOL`}</label>
+                  <select
+                    value={pool}
+                    onChange={(e) => setPool(e.target.value)}
+                    className="input-dark"
+                  >
+                    <option value="1">Pool 1</option>
+                    <option value="2">Pool 2</option>
+                    <option value="3">Pool 3</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* All Countries Server 2 Specific Fields */}
+            {selectedServer === 'all2' && (
+              <>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> MAX PRICE`}</label>
+                  <input
+                    type="number"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder="Maximum price"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> OPERATOR (Optional)`}</label>
+                  <input
+                    type="text"
+                    value={operator}
+                    onChange={(e) => setOperator(e.target.value)}
+                    placeholder="Operator name"
+                    className="input-dark"
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> REFERENCE (Optional)`}</label>
+                  <input
+                    type="text"
+                    value={ref}
+                    onChange={(e) => setRef(e.target.value)}
+                    placeholder="Reference ID"
+                    className="input-dark"
+                  />
+                </div>
+              </>
+            )}
+
+            <button
+              onClick={purchaseNumber}
+              disabled={purchasing || !selectedService || (selectedServer !== 'usa1' && !selectedCountry)}
+              className="btn-neon-green w-full mt-6"
+            >
+              {purchasing ? 'PURCHASING...' : 'PURCHASE NUMBER'}
             </button>
-            
-            {msg && <p className={`mt-4 text-center font-mono ${msg.includes('acquired') || msg.includes('Received') ? 'text-[#00ff88]' : 'text-[#ff2a6d]'}`}>{msg}</p>}
 
-            {currentNumber && (
+            {msg && (
+              <div className={`mt-6 p-4 rounded text-center border ${
+                msgType === 'success'
+                  ? 'border-[#00ff88] bg-[#00ff88]/10 text-[#00ff88]'
+                  : 'border-[#ff2a6d] bg-[#ff2a6d]/10 text-[#ff2a6d]'
+              }`}>
+                <p className="font-mono font-bold">{msg}</p>
+              </div>
+            )}
+
+            {orderData && (
               <div className="mt-6 p-6 border border-[#00ff88]/30 bg-[#00ff88]/5 rounded-lg">
-                <h3 className="text-[#00ff88] font-mono mb-2">{`> ACQUISITION_SUCCESSFUL`}</h3>
-                <p className="text-2xl font-mono text-[#00ff88] mb-2">{currentNumber.phoneNumber}</p>
-                <p className="text-sm text-[#a0a0b0] font-mono mb-4">Order ID: {currentNumber.orderId}</p>
-                
-                <button 
-                  onClick={checkSms} 
-                  disabled={checkingSms || !!smsCode}
-                  className="btn-neon-purple w-full text-sm"
-                >
-                  {checkingSms ? 'CHECKING...' : smsCode ? 'SMS RECEIVED' : 'CHECK FOR SMS'}
-                </button>
-
-                {smsCode && (
-                  <div className="mt-4 p-4 border border-[#00ff88] bg-[#00ff88]/10 rounded text-center">
-                    <p className="text-sm text-[#00ff88] font-mono mb-1">{`> OTP_CODE:`}</p>
-                    <p className="text-4xl font-bold text-[#00ff88] tracking-widest">{smsCode}</p>
-                  </div>
-                )}
+                <h3 className="text-[#00ff88] font-mono mb-4">{`> ORDER_DETAILS:`}</h3>
+                <div className="space-y-2 font-mono text-sm">
+                  {orderData.order_id && (
+                    <div>
+                      <span className="text-[#a0a0b0]">Order ID: </span>
+                      <span className="text-[#e0e0e0]">{orderData.order_id}</span>
+                    </div>
+                  )}
+                  {orderData.number && (
+                    <div>
+                      <span className="text-[#a0a0b0]">Number: </span>
+                      <span className="text-[#e0e0e0]">{orderData.number}</span>
+                    </div>
+                  )}
+                  {orderData.access_number && (
+                    <div>
+                      <span className="text-[#a0a0b0]">Access Number: </span>
+                      <span className="text-[#e0e0e0]">{orderData.access_number}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
