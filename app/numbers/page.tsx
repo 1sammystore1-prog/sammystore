@@ -23,8 +23,6 @@ export default function VirtualNumbersPage() {
   const [msgType, setMsgType] = useState('');
   const [balance, setBalance] = useState(0);
   const [orderData, setOrderData] = useState<any>(null);
-  const [error, setError] = useState('');
-  const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
     fetchServices();
@@ -35,8 +33,6 @@ export default function VirtualNumbersPage() {
 
   const fetchServices = async () => {
     setLoading(true);
-    setError('');
-    setDebugInfo('');
     try {
       let endpoint = '';
       switch(selectedServer) {
@@ -53,18 +49,15 @@ export default function VirtualNumbersPage() {
       
       const res = await fetch(endpoint);
       const data = await res.json();
-      setDebugInfo(JSON.stringify(data).substring(0, 200));
       
       if (data.success && Array.isArray(data.services || data.data) && (data.services || data.data).length > 0) {
         setServices(data.services || data.data);
-        setError('');
       } else {
-        setError(data.error || 'No services available');
         setServices([]);
       }
     } catch (error) {
-      setError('Failed to fetch services');
       console.error('Failed to fetch services:', error);
+      setServices([]);
     }
     setLoading(false);
   };
@@ -191,7 +184,7 @@ export default function VirtualNumbersPage() {
                   : 'border-[#2a2a3a] bg-[#1a1a25] text-[#a0a0b0] hover:border-[#00f5ff]'
               }`}
             >
-              🇺 USA Server 1
+              🇸 USA Server 1
             </button>
             <button
               onClick={() => setSelectedServer('all1')}
@@ -211,21 +204,14 @@ export default function VirtualNumbersPage() {
                   : 'border-[#2a2a3a] bg-[#1a1a25] text-[#a0a0b0] hover:border-[#00f5ff]'
               }`}
             >
-              🌐 All Countries Server 2
+               All Countries Server 2
             </button>
           </div>
-
-          {error && (
-            <div className="mb-4 p-3 bg-[#ff2a6d]/10 border border-[#ff2a6d]/30 rounded text-[#ff2a6d] text-sm font-mono">
-              <p className="font-bold">⚠️ {error}</p>
-              {debugInfo && <p className="mt-2 text-xs text-[#ff2a6d]/70">Debug: {debugInfo}</p>}
-            </div>
-          )}
 
           <div className="card-dark max-w-2xl">
             <h2 className="text-2xl font-bold text-[#00f5ff] mb-6">{getServerName()}</h2>
 
-            {/* Service Selection */}
+            {/* Service Selection WITH PRICES */}
             <div className="mb-6">
               <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_SERVICE`}</label>
               <select
@@ -242,7 +228,7 @@ export default function VirtualNumbersPage() {
               </select>
             </div>
 
-            {/* Country Selection (for All Countries servers) */}
+            {/* Country Selection */}
             {selectedServer !== 'usa1' && (
               <div className="mb-6">
                 <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_COUNTRY`}</label>
@@ -266,36 +252,18 @@ export default function VirtualNumbersPage() {
               <>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> CARRIER (Optional)`}</label>
-                  <input
-                    type="text"
-                    value={carrier}
-                    onChange={(e) => setCarrier(e.target.value)}
-                    placeholder="e.g., Verizon"
-                    className="input-dark"
-                  />
+                  <input type="text" value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="e.g., Verizon" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> AREA CODE (Optional)`}</label>
-                  <input
-                    type="text"
-                    value={areaCode}
-                    onChange={(e) => setAreaCode(e.target.value)}
-                    placeholder="e.g., 212"
-                    className="input-dark"
-                  />
+                  <input type="text" value={areaCode} onChange={(e) => setAreaCode(e.target.value)} placeholder="e.g., 212" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> DURATION`}</label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    className="input-dark"
-                  >
+                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="input-dark">
                     <option value="1D">1 Day</option>
                     <option value="3D">3 Days</option>
                     <option value="7D">7 Days</option>
-                    <option value="15D">15 Days</option>
-                    <option value="30D">30 Days</option>
                   </select>
                 </div>
               </>
@@ -306,34 +274,17 @@ export default function VirtualNumbersPage() {
               <>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> QUANTITY`}</label>
-                  <input
-                    type="number"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    placeholder="1"
-                    className="input-dark"
-                  />
+                  <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="1" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> AREA CODE (Optional)`}</label>
-                  <input
-                    type="text"
-                    value={areaCode}
-                    onChange={(e) => setAreaCode(e.target.value)}
-                    placeholder="e.g., 212"
-                    className="input-dark"
-                  />
+                  <input type="text" value={areaCode} onChange={(e) => setAreaCode(e.target.value)} placeholder="e.g., 212" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> POOL`}</label>
-                  <select
-                    value={pool}
-                    onChange={(e) => setPool(e.target.value)}
-                    className="input-dark"
-                  >
+                  <select value={pool} onChange={(e) => setPool(e.target.value)} className="input-dark">
                     <option value="1">Pool 1</option>
                     <option value="2">Pool 2</option>
-                    <option value="3">Pool 3</option>
                   </select>
                 </div>
               </>
@@ -344,33 +295,15 @@ export default function VirtualNumbersPage() {
               <>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> MAX PRICE`}</label>
-                  <input
-                    type="number"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    placeholder="Maximum price"
-                    className="input-dark"
-                  />
+                  <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Maximum price" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> OPERATOR (Optional)`}</label>
-                  <input
-                    type="text"
-                    value={operator}
-                    onChange={(e) => setOperator(e.target.value)}
-                    placeholder="Operator name"
-                    className="input-dark"
-                  />
+                  <input type="text" value={operator} onChange={(e) => setOperator(e.target.value)} placeholder="Operator name" className="input-dark" />
                 </div>
                 <div className="mb-6">
                   <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> REFERENCE (Optional)`}</label>
-                  <input
-                    type="text"
-                    value={ref}
-                    onChange={(e) => setRef(e.target.value)}
-                    placeholder="Reference ID"
-                    className="input-dark"
-                  />
+                  <input type="text" value={ref} onChange={(e) => setRef(e.target.value)} placeholder="Reference ID" className="input-dark" />
                 </div>
               </>
             )}
@@ -385,9 +318,7 @@ export default function VirtualNumbersPage() {
 
             {msg && (
               <div className={`mt-6 p-4 rounded text-center border ${
-                msgType === 'success'
-                  ? 'border-[#00ff88] bg-[#00ff88]/10 text-[#00ff88]'
-                  : 'border-[#ff2a6d] bg-[#ff2a6d]/10 text-[#ff2a6d]'
+                msgType === 'success' ? 'border-[#00ff88] bg-[#00ff88]/10 text-[#00ff88]' : 'border-[#ff2a6d] bg-[#ff2a6d]/10 text-[#ff2a6d]'
               }`}>
                 <p className="font-mono font-bold">{msg}</p>
               </div>
@@ -397,27 +328,9 @@ export default function VirtualNumbersPage() {
               <div className="mt-6 p-6 border border-[#00ff88]/30 bg-[#00ff88]/5 rounded-lg">
                 <h3 className="text-[#00ff88] font-mono mb-4">{`> ORDER_DETAILS:`}</h3>
                 <div className="space-y-2 font-mono text-sm">
-                  {orderData.order_id && (
-                    <div>
-                      <span className="text-[#a0a0b0]">Order ID: </span>
-                      <span className="text-[#e0e0e0]">{orderData.order_id}</span>
-                    </div>
-                  )}
-                  {orderData.number && (
-                    <div>
-                      <span className="text-[#a0a0b0]">Number: </span>
-                      <span className="text-[#e0e0e0]">{orderData.number}</span>
-                    </div>
-                  )}
-                  {orderData.access_number && (
-                    <div>
-                      <span className="text-[#a0a0b0]">Access Number: </span>
-                      <span className="text-[#e0e0e0]">{orderData.access_number}</span>
-                    </div>
-                  )}
-                  {typeof orderData === 'string' && (
-                    <div className="break-all text-[#e0e0e0]">{orderData}</div>
-                  )}
+                  {orderData.order_id && <div><span className="text-[#a0a0b0]">Order ID: </span><span className="text-[#e0e0e0]">{orderData.order_id}</span></div>}
+                  {orderData.number && <div><span className="text-[#a0a0b0]">Number: </span><span className="text-[#e0e0e0]">{orderData.number}</span></div>}
+                  {typeof orderData === 'string' && <div className="break-all text-[#e0e0e0]">{orderData}</div>}
                 </div>
               </div>
             )}
