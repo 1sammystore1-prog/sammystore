@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://www.danotp.com.ng/stubs/handler_api.php';
+const BASE_URL = 'https://www.danotp.com.ng/stubs/handler.php';
 
 export async function danotpRequest(action: string, params: Record<string, any> = {}) {
   const apiKey = process.env.YOUR_DANOTP_API_KEY;

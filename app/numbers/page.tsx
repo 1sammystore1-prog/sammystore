@@ -5,8 +5,11 @@ import Sidebar from '@/components/Sidebar';
 
 export default function NumbersPage() {
   const [services, setServices] = useState<any[]>([]);
+  const [countries, setCountries] = useState<any[]>([]);
   const [service, setService] = useState('');
-  const [country, setCountry] = useState('usa');
+  const [country, setCountry] = useState('');
+  const [areaCode, setAreaCode] = useState('');
+  const [pool, setPool] = useState('1');
   const [loading, setLoading] = useState(false);
   const [checkingSms, setCheckingSms] = useState(false);
   const [currentNumber, setCurrentNumber] = useState<any>(null);
@@ -15,21 +18,34 @@ export default function NumbersPage() {
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/danotp/services');
-        const data = await res.json();
-        if (data.success && Array.isArray(data.services)) {
-          setServices(data.services);
-          if (data.services.length > 0) {
-            setService(data.services[0].slug || data.services[0].id);
+        const [servicesRes, countriesRes] = await Promise.all([
+          fetch('/api/danotp/services'),
+          fetch('/api/danotp/countries')
+        ]);
+        
+        const servicesData = await servicesRes.json();
+        const countriesData = await countriesRes.json();
+        
+        if (servicesData.success) {
+          setServices(servicesData.services);
+          if (servicesData.services.length > 0) {
+            setService(servicesData.services[0].slug || servicesData.services[0].id);
+          }
+        }
+        
+        if (countriesData.success) {
+          setCountries(countriesData.countries);
+          if (countriesData.countries.length > 0) {
+            setCountry(countriesData.countries[0].code || countriesData.countries[0].id);
           }
         }
       } catch (error) {
-        console.error('Failed to fetch services:', error);
+        console.error('Failed to fetch data:', error);
       }
     };
-    fetchServices();
+    fetchData();
   }, []);
 
   const buyNumber = async () => {
@@ -52,7 +68,7 @@ export default function NumbersPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ service, country })
+        body: JSON.stringify({ service, country, quantity: 1, areacode: areaCode, pool })
       });
       const data = await res.json();
       
@@ -114,7 +130,7 @@ export default function NumbersPage() {
                 ) : (
                   services.map((s) => (
                     <option key={s.id} value={s.slug || s.id}>
-                      {s.name} - ₦{s.cost || 500}
+                      {s.name}
                     </option>
                   ))
                 )}
@@ -123,11 +139,26 @@ export default function NumbersPage() {
             <div className="mb-6">
               <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> SELECT_COUNTRY`}</label>
               <select value={country} onChange={(e) => setCountry(e.target.value)} className="input-dark">
-                <option value="usa">🇸 USA</option>
-                <option value="uk">🇬🇧 UK</option>
-                <option value="canada">🇨🇦 CANADA</option>
-                <option value="russia">🇷🇺 RUSSIA</option>
+                {countries.length === 0 ? (
+                  <option value="">Loading countries...</option>
+                ) : (
+                  countries.map((c) => (
+                    <option key={c.code || c.id} value={c.code || c.id}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))
+                )}
               </select>
+            </div>
+            <div className="mb-6">
+              <label className="block text-[#00f5ff] text-sm font-mono mb-2">{`> AREA_CODE (OPTIONAL)`}</label>
+              <input 
+                type="text" 
+                value={areaCode}
+                onChange={(e) => setAreaCode(e.target.value)}
+                placeholder="e.g., 212"
+                className="input-dark"
+              />
             </div>
             <button onClick={buyNumber} disabled={loading} className="btn-neon-green w-full">
               {loading ? 'ACQUIRING...' : 'ACQUIRE NUMBER - ₦500'}

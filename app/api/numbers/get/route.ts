@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const userId = getUserId(request);
     if (!userId) return NextResponse.json({ success: false, error: 'Please login first' });
 
-    const { service, country, carrier, area_codes, duration, specific_number } = await request.json();
+    const { service, country, quantity, areacode, pool } = await request.json();
     const cost = 500;
 
     const deduction = await deductBalance(userId, cost, `Rent ${service} number (${country})`);
@@ -17,10 +17,9 @@ export async function POST(request: Request) {
     }
 
     const params: any = { service, country };
-    if (carrier) params.carrier = carrier;
-    if (area_codes) params.area_codes = area_codes;
-    if (duration) params.duration = duration;
-    if (specific_number) params.specific_number = specific_number;
+    if (quantity) params.quantity = quantity;
+    if (areacode) params.areacode = areacode;
+    if (pool) params.pool = pool;
 
     const data = await danotpRequest('getNumber', params);
 

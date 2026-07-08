@@ -4,7 +4,7 @@ import { danotpRequest } from '@/lib/danotp';
 export async function POST(request: Request) {
   try {
     const { orderId, status } = await request.json();
-    const data = await danotpRequest('setStatus', { id: orderId, status });
+    const data = await danotpRequest('setStatus', { order_id: orderId, status });
 
     if (data.includes('OK')) {
       return NextResponse.json({ success: true, message: 'Status updated' });

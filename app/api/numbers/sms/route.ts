@@ -4,7 +4,7 @@ import { danotpRequest } from '@/lib/danotp';
 export async function POST(request: Request) {
   try {
     const { orderId } = await request.json();
-    const data = await danotpRequest('getStatus', { id: orderId });
+    const data = await danotpRequest('getStatus', { order_id: orderId });
 
     if (data.includes('STATUS:1:')) {
       const code = data.split(':')[2];
