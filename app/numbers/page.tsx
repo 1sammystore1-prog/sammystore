@@ -1,262 +1,268 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
+import Link from 'next/link';
 
 export default function VirtualNumbersPage() {
-  const [selectedServer, setSelectedServer] = useState('usa1');
-  const [services, setServices] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
-  const [selectedService, setSelectedService] = useState('');
+  const [services, setServices] = useState<any[]>([]);
   const [selectedCountry, setSelectedCountry] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [msgType, setMsgType] = useState('');
-  const [orderData, setOrderData] = useState<any>(null);
+  const [selectedService, setSelectedService] = useState('');
+  const [loadingCountries, setLoadingCountries] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
+  const [buying, setBuying] = useState(false);
+  const [checkingSms, setCheckingSms] = useState(false);
+  
+  const [orderId, setOrderId] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [smsCode, setSmsCode] = useState('');
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
+  // 1. Fetch Countries on load
   useEffect(() => {
-    fetchServices();
-    if (selectedServer !== 'usa1') {
-      fetchCountries();
-    }
-  }, [selectedServer]);
-
-  const fetchServices = async () => {
-    setLoading(true);
-    try {
-      let endpoint = '';
-      switch(selectedServer) {
-        case 'usa1':
-          endpoint = '/api/numbers/usa-server1?action=getServices';
-          break;
-        case 'all1':
-          endpoint = '/api/numbers/all-countries-server1?action=getServices';
-          break;
-        case 'all2':
-          endpoint = '/api/numbers/all-countries-server2?action=getServices&country=US';
-          break;
-      }
-      
-      const res = await fetch(endpoint);
-      const data = await res.json();
-      if (data.success && Array.isArray(data.services || data.data)) {
-        setServices(data.services || data.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch services:', error);
-    }
-    setLoading(false);
-  };
-
-  const fetchCountries = async () => {
-    try {
-      let endpoint = '';
-      switch(selectedServer) {
-        case 'all1':
-          endpoint = '/api/numbers/all-countries-server1?action=getCountries';
-          break;
-        case 'all2':
-          endpoint = '/api/numbers/all-countries-server2?action=getCountries';
-          break;
-      }
-      
-      if (endpoint) {
-        const res = await fetch(endpoint);
+    const fetchCountries = async () => {
+      try {
+        const res = await fetch('/api/numbers/countries');
         const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
-          setCountries(data.data);
+        if (data.success && data.countries) {
+          // 5sim returns an object, convert to array
+          const countryList = Object.entries(data.countries).map(([code, info]: [string, any]) => ({
+            code,
+            name: info.name || code.toUpperCase(),
+            flag: info.img || ''
+          }));
+          setCountries(countryList.sort((a, b) => a.name.localeCompare(b.name)));
         }
+      } catch (err) {
+        setError('Failed to load countries');
       }
-    } catch (error) {
-      console.error('Failed to fetch countries:', error);
-    }
-  };
+      setLoadingCountries(false);
+    };
+    fetchCountries();
+  }, []);
 
-  const purchaseNumber = async () => {
-    setPurchasing(true);
-    setMsg('');
-    setOrderData(null);
+  // 2. Fetch Services when country changes
+  useEffect(() => {
+    if (!selectedCountry) return;
+    
+    const fetchServices = async () => {
+      setLoadingServices(true);
+      setServices([]);
+      setSuccessMsg('');
+      setError('');
+      try {
+        const res = await fetch(`/api/numbers/products?country=${selectedCountry}`);
+        const data = await res.json();
+        if (data.success && data.products) {
+          // 5sim returns an object of products
+          const productList = Object.entries(data.products).map(([id, info]: [string, any]) => ({
+            id,
+            name: info.name || id
+          }));
+          setServices(productList.sort((a, b) => a.name.localeCompare(b.name)));
+        }
+      } catch (err) {
+        setError('Failed to load services');
+      }
+      setLoadingServices(false);
+    };
+    fetchServices();
+  }, [selectedCountry]);
+
+  // 3. Buy Number
+  const handleBuy = async () => {
+    if (!selectedCountry || !selectedService) {
+      setError('Please select a country and service');
+      return;
+    }
+
+    setBuying(true);
+    setError('');
+    setSuccessMsg('');
+    setSmsCode('');
+    setOrderId('');
+    setPhoneNumber('');
 
     const token = localStorage.getItem('token');
     if (!token) {
-      setMsgType('error');
-      setMsg('Please login to purchase');
-      setPurchasing(false);
+      setError('Please login to purchase');
+      setBuying(false);
       return;
     }
 
     try {
-      let endpoint = '';
-      let body: any = { service: selectedService };
-
-      switch(selectedServer) {
-        case 'usa1':
-          endpoint = '/api/numbers/usa-server1';
-          body.country = 'usa';
-          break;
-        case 'all1':
-          endpoint = '/api/numbers/all-countries-server1';
-          body.country = selectedCountry;
-          break;
-        case 'all2':
-          endpoint = '/api/numbers/all-countries-server2';
-          body.country = selectedCountry;
-          break;
-      }
-
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/numbers/buy', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          country: selectedCountry,
+          product: selectedService
+        })
       });
-
       const data = await res.json();
-      
-      if (data.success || data.parsed) {
-        setMsgType('success');
-        setMsg('Number acquired successfully!');
-        setOrderData(data.parsed || data);
+
+      if (data.success) {
+        setSuccessMsg('Number acquired successfully!');
+        setOrderId(data.orderId);
+        setPhoneNumber(data.phoneNumber);
       } else {
-        setMsgType('error');
-        setMsg(data.error || 'Purchase failed');
+        setError(data.error || 'Failed to buy number');
       }
-    } catch (error: any) {
-      setMsgType('error');
-      setMsg('Network error: ' + error.message);
+    } catch (err: any) {
+      setError('Network error: ' + err.message);
     }
-    setPurchasing(false);
+    setBuying(false);
+  };
+
+  // 4. Check SMS
+  const handleCheckSms = async () => {
+    if (!orderId) return;
+    setCheckingSms(true);
+    try {
+      const res = await fetch(`/api/numbers/sms?orderId=${orderId}`);
+      const data = await res.json();
+      if (data.success && data.sms) {
+        // 5sim returns sms in data.sms.sms or similar structure
+        const code = data.sms.sms || data.sms.text || JSON.stringify(data.sms);
+        setSmsCode(code);
+      } else {
+        setSmsCode('No SMS received yet. Please wait and try again.');
+      }
+    } catch (err) {
+      setError('Failed to check SMS');
+    }
+    setCheckingSms(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
-        <Sidebar />
-        <main className="flex-1 p-6 md:p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Virtual Numbers</h1>
-            <p className="text-gray-600">Get instant access to virtual numbers worldwide</p>
+      {/* Simple Header */}
+      <nav className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">S</span>
+            </div>
+            <span className="text-xl font-bold text-gray-800">SAMMY<span className="text-[#f97316]">STORE</span></span>
+          </Link>
+          <Link href="/dashboard" className="text-sm font-medium text-gray-600 hover:text-[#f97316]">
+            Dashboard
+          </Link>
+        </div>
+      </nav>
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Virtual Numbers</h1>
+          <p className="text-gray-600">Get instant SMS verification numbers worldwide</p>
+        </div>
+
+        {/* Error / Success Messages */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
+            ⚠️ {error}
           </div>
-
-          {/* Server Selection */}
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            <button
-              onClick={() => setSelectedServer('usa1')}
-              className={`p-4 rounded-xl border-2 font-semibold transition-all ${
-                selectedServer === 'usa1'
-                  ? 'border-[#f97316] bg-[#f97316] text-white'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-[#f97316]'
-              }`}
-            >
-              🇺🇸 USA Server 1
-            </button>
-            <button
-              onClick={() => setSelectedServer('all1')}
-              className={`p-4 rounded-xl border-2 font-semibold transition-all ${
-                selectedServer === 'all1'
-                  ? 'border-[#f97316] bg-[#f97316] text-white'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-[#f97316]'
-              }`}
-            >
-              🌍 All Countries Server 1
-            </button>
-            <button
-              onClick={() => setSelectedServer('all2')}
-              className={`p-4 rounded-xl border-2 font-semibold transition-all ${
-                selectedServer === 'all2'
-                  ? 'border-[#f97316] bg-[#f97316] text-white'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-[#f97316]'
-              }`}
-            >
-              🌐 All Countries Server 2
-            </button>
+        )}
+        {successMsg && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm font-medium">
+            ✅ {successMsg}
           </div>
+        )}
 
-          <div className="card p-6 md:p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              {selectedServer === 'usa1' && '🇺🇸 USA Server 1'}
-              {selectedServer === 'all1' && '🌍 All Countries Server 1'}
-              {selectedServer === 'all2' && '🌐 All Countries Server 2'}
-            </h2>
-
-            {/* Service Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Select Service</label>
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+          {/* Step 1: Country */}
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-gray-700 mb-2">1. Select Country</label>
+            {loadingCountries ? (
+              <div className="text-gray-500 text-sm">Loading countries...</div>
+            ) : (
               <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="input-field"
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent bg-gray-50"
               >
-                <option value="">Choose a service...</option>
-                {services.map((service: any, idx: number) => (
-                  <option key={idx} value={service.id || service.slug || service}>
-                    {service.name || service} {service.price && `- ₦${parseFloat(service.price).toLocaleString()}`}
+                <option value="">Choose a country...</option>
+                {countries.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag && <span className="mr-2">{c.flag}</span>}
+                    {c.name}
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Country Selection */}
-            {selectedServer !== 'usa1' && (
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Country</label>
-                <select
-                  value={selectedCountry}
-                  onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="input-field"
-                >
-                  <option value="">Choose a country...</option>
-                  {countries.map((country: any, idx: number) => (
-                    <option key={idx} value={country.code || country.id || country}>
-                      {country.flag ? country.flag + ' ' : ''}{country.name || country}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <button
-              onClick={purchaseNumber}
-              disabled={purchasing || !selectedService || (selectedServer !== 'usa1' && !selectedCountry)}
-              className="btn-primary w-full disabled:opacity-50"
-            >
-              {purchasing ? 'Processing...' : 'Purchase Number'}
-            </button>
-
-            {msg && (
-              <div className={`mt-6 p-4 rounded-xl ${
-                msgType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                <p className="font-semibold">{msg}</p>
-              </div>
-            )}
-
-            {orderData && (
-              <div className="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
-                <h3 className="font-bold text-gray-800 mb-4">Order Details:</h3>
-                <div className="space-y-2 text-sm">
-                  {orderData.order_id && (
-                    <div>
-                      <span className="text-gray-600">Order ID: </span>
-                      <span className="font-mono font-semibold">{orderData.order_id}</span>
-                    </div>
-                  )}
-                  {orderData.number && (
-                    <div>
-                      <span className="text-gray-600">Number: </span>
-                      <span className="font-mono font-semibold">{orderData.number}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
             )}
           </div>
-        </main>
-      </div>
+
+          {/* Step 2: Service */}
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-gray-700 mb-2">2. Select Service</label>
+            {!selectedCountry ? (
+              <div className="text-gray-500 text-sm">Please select a country first</div>
+            ) : loadingServices ? (
+              <div className="text-gray-500 text-sm">Loading services...</div>
+            ) : (
+              <select
+                value={selectedService}
+                onChange={(e) => setSelectedService(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent bg-gray-50"
+              >
+                <option value="">Choose a service...</option>
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Step 3: Buy Button */}
+          <button
+            onClick={handleBuy}
+            disabled={buying || !selectedCountry || !selectedService}
+            className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {buying ? 'Processing...' : 'Get Number'}
+          </button>
+
+          {/* Results Area */}
+          {phoneNumber && (
+            <div className="mt-8 p-6 bg-orange-50 border border-orange-200 rounded-xl">
+              <h3 className="font-bold text-gray-800 mb-4">Your Number Details</h3>
+              
+              <div className="space-y-3 mb-6">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Phone Number</p>
+                  <p className="text-xl font-mono font-bold text-gray-800">{phoneNumber}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase">Order ID</p>
+                  <p className="text-sm font-mono text-gray-600">{orderId}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-orange-200 pt-4">
+                <p className="text-xs text-gray-500 uppercase mb-2">SMS Code</p>
+                {smsCode ? (
+                  <div className="p-3 bg-white rounded-lg border border-orange-200 font-mono text-lg text-green-600 font-bold break-all">
+                    {smsCode}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 mb-3">Waiting for SMS...</p>
+                )}
+                
+                <button
+                  onClick={handleCheckSms}
+                  disabled={checkingSms}
+                  className="mt-3 w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+                >
+                  {checkingSms ? 'Checking...' : 'Check for SMS'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
