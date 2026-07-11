@@ -19,11 +19,12 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   try {
-    // Buy the number - use "any" for operator
-    const activation = await fiveSimRequest(`/user/buy/activation/${country}/any/${product}`, 'GET');
+    // 5sim Buy Endpoint: /v1/user/buy/activation/{country}/{operator}/{product}
+    const activation = await fiveSimRequest(`/user/buy/activation/${country}/any/${product}`);
 
-    // Get price from response
-    const priceInNgn = activation.price * 1500; // Convert USD to NGN
+    // 5sim returns the price in the response
+    const priceInUsd = activation.cost || activation.price || 0;
+    const priceInNgn = priceInUsd * 1500; // Convert USD to NGN
 
     if (user.walletBalance < priceInNgn) {
       return NextResponse.json({ error: `Insufficient funds. You need ₦${priceInNgn.toFixed(2)}` }, { status: 400 });
@@ -50,7 +51,6 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error('Buy API error:', error.response?.data || error.message);
     return NextResponse.json({ 
       success: false, 
       error: error.response?.data?.error || error.message || 'Failed to buy number' 

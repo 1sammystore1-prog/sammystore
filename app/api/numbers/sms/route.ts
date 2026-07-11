@@ -10,15 +10,15 @@ export async function GET(request: Request) {
   }
 
   try {
+    // 5sim Check Endpoint: /v1/user/check/{id}
     const data = await fiveSimRequest(`/user/check/${orderId}`);
     
     return NextResponse.json({ 
       success: true, 
-      sms: data.sms || [],
+      sms: data.sms || null,
       status: data.status
     });
   } catch (error: any) {
-    console.error('SMS Check API error:', error.response?.data || error.message);
     return NextResponse.json({ 
       success: false, 
       error: error.message
