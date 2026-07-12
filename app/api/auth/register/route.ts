@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -44,15 +43,14 @@ export async function POST(request: Request) {
     // Cryptographically random, not Math.random() - this is handed to the
     // user as their API key, so it needs to be unguessable.
     const apiKey = 'sammy_' + crypto.randomBytes(20).toString('hex');
-    
-    // Hash password manually before creating user
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Pass the PLAIN password - the schema's pre('save') hook hashes it
+    // exactly once. Hashing it here too would double-hash it, which would
+    // make login fail even with the correct password.
     const newUser = await User.create({
       name,
       email: String(email).toLowerCase().trim(),
-      password: hashedPassword,
+      password,
       apiKey,
       walletBalance: 0
     });

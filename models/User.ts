@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export interface IUser extends Document {
   name: string;
@@ -25,21 +25,17 @@ const UserSchema: Schema<IUser> = new Schema(
   { timestamps: true }
 );
 
-UserSchema.pre('save', async function(next) {
-  const user = this;
-  if (!user.isModified('password')) {
-    return next();
-  }
-  try {
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
-    next();
-  } catch (error: any) {
-    next(error);
-  }
-} as any);
+// Plain async hook (no `next` callback needed - Mongoose supports this
+// directly) so the password is hashed exactly once, right before saving,
+// no matter which route creates or updates the user. Callers should always
+// pass a PLAIN TEXT password and let this hook hash it - hashing it again
+// before calling .create()/.save() would double-hash it and break login.
+UserSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
-UserSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
