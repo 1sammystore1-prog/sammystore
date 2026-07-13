@@ -261,6 +261,39 @@ export default function VirtualNumbersPage() {
         {/* Main Card */}
         {!order ? (
           <div className="bg-gray-800 border border-gray-700 p-6 rounded-xl shadow-xl">
+            {/* Step Indicator */}
+            <div className="flex items-center justify-center mb-8">
+              {[
+                { label: 'Country', done: !!selectedCountry },
+                { label: 'Service', done: !!selectedService },
+                { label: 'Number', done: false },
+              ].map((step, idx, arr) => (
+                <div key={step.label} className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors ${
+                        step.done
+                          ? 'bg-[#b3001f] border-[#b3001f] text-white'
+                          : 'border-gray-600 text-gray-400'
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
+                    <span className={`text-xs mt-1 ${step.done ? 'text-[#e11d3f]' : 'text-gray-500'}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                  {idx < arr.length - 1 && (
+                    <div
+                      className={`w-10 h-0.5 mx-2 mb-5 ${
+                        arr[idx + 1].done || step.done ? 'bg-[#b3001f]' : 'bg-gray-600'
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
             {/* Country Selection */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-300 mb-2">

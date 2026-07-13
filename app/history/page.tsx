@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 
@@ -25,9 +26,9 @@ export default function HistoryPage() {
   }, []);
 
   const getStatusColor = (status: string) => {
-    if (status === 'success') return 'text-[#00ff88] border-[#00ff88]/30 bg-[#00ff88]/10';
-    if (status === 'pending') return 'text-[#ffd700] border-[#ffd700]/30 bg-[#ffd700]/10';
-    return 'text-[#ff2a6d] border-[#ff2a6d]/30 bg-[#ff2a6d]/10';
+    if (status === 'success') return 'text-[#25d366] border-[#25d366]/30 bg-[#25d366]/10';
+    if (status === 'pending') return 'text-[#e6a817] border-[#e6a817]/30 bg-[#e6a817]/10';
+    return 'text-[#e11d3f] border-[#e11d3f]/30 bg-[#e11d3f]/10';
   };
 
   return (
@@ -36,6 +37,12 @@ export default function HistoryPage() {
       <div className="flex flex-col md:flex-row">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+            ← Back to Dashboard
+          </Link>
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+            ← Back to Dashboard
+          </Link>
           <div className="mb-8">
             <p className="terminal-text text-sm mb-2">{`> MODULE: TRANSACTION_LOGS`}</p>
             <h1 className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">HISTORY</h1>
@@ -49,7 +56,7 @@ export default function HistoryPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm font-mono">
-                  <thead className="text-[#00f5ff] border-b border-[#2a2a3a]">
+                  <thead className="text-[#e11d3f] border-b border-[#2a2a3a]">
                     <tr>
                       <th className="p-3">TYPE</th>
                       <th className="p-3">DESCRIPTION</th>
@@ -63,9 +70,12 @@ export default function HistoryPage() {
                       <tr key={txn._id} className="border-b border-[#2a2a3a] hover:bg-[#1a1a25] transition-colors">
                         <td className="p-3 text-[#e0e0e0] uppercase">{txn.type}</td>
                         <td className="p-3">{txn.description}</td>
-                        <td className="p-3 text-[#ffd700]">₦{txn.amount}</td>
+                        <td className="p-3 text-[#e6a817]">₦{txn.amount}</td>
                         <td className="p-3">
-                          <span className={`px-2 py-1 rounded text-xs border ${getStatusColor(txn.status)}`}>
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs border ${getStatusColor(txn.status)}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              txn.status === 'success' ? 'bg-[#25d366]' : txn.status === 'pending' ? 'bg-[#e6a817] animate-pulse' : 'bg-[#e11d3f]'
+                            }`} />
                             {txn.status.toUpperCase()}
                           </span>
                         </td>
