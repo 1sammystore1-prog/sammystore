@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, Fragment } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
@@ -122,9 +122,8 @@ function OrdersInner() {
                       const hasDetails = order.type === 'account_purchase' && order.metadata?.accountData;
                       const isExpanded = expandedId === order._id;
                       return (
-                        <>
+                        <Fragment key={order._id}>
                           <tr
-                            key={order._id}
                             id={`order-${order._id}`}
                             className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
                               highlightId === order._id ? 'bg-orange-50/50' : ''
@@ -154,7 +153,7 @@ function OrdersInner() {
                             </td>
                           </tr>
                           {hasDetails && isExpanded && (
-                            <tr key={`${order._id}-details`} className="bg-gray-50 border-b border-gray-100">
+                            <tr className="bg-gray-50 border-b border-gray-100">
                               <td colSpan={6} className="p-4">
                                 <div className="max-w-xl">
                                   {order.metadata?.category && (
@@ -200,7 +199,7 @@ function OrdersInner() {
                               </td>
                             </tr>
                           )}
-                        </>
+                        </Fragment>
                       );
                     })}
                   </tbody>

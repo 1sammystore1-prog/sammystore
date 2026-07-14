@@ -22,7 +22,18 @@ const transactionSchema = new Schema<ITransaction>({
   type: {
     type: String,
     required: true,
-    enum: ['deposit', 'withdrawal', 'account_purchase', 'transfer', 'refund', 'manual_fund_request', 'number_purchase']
+    enum: [
+      'deposit', 'withdrawal', 'account_purchase', 'transfer', 'refund',
+      'manual_fund_request', 'number_purchase',
+      // The following are actually created by app/api routes but were
+      // missing from this enum, which made every Transaction.create() call
+      // using them throw a Mongoose ValidationError:
+      'admin_credit',      // app/api/admin/add-money
+      'admin_debit',       // app/api/admin/deduct-money
+      'smm',               // app/api/smm/order, app/api/cart/checkout (smm items)
+      'wallet_fund',       // app/api/wallet/fund-paystack, verify-paystack
+      'virtual_number',    // app/api/numbers/tiger/buy, dashboard/stats
+    ]
   },
   description: {
     type: String,

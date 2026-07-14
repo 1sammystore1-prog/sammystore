@@ -42,9 +42,13 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-      <Link href="/dashboard" className="text-2xl font-bold">
-        <span className="text-gray-800">SAMMY</span>
-        <span className="text-[#f97316]">STORE</span>
+      <Link href="/dashboard" className="flex items-center gap-2 shrink-0" aria-label="SammyStore home">
+        <span className="w-9 h-9 rounded-xl bg-[#f97316] text-white font-extrabold flex items-center justify-center text-lg shadow-sm">
+          S
+        </span>
+        <span className="hidden sm:inline text-2xl font-bold">
+          <span className="text-gray-800">SAMMY</span><span className="text-[#f97316]">STORE</span>
+        </span>
       </Link>
 
       <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-4">
@@ -87,12 +91,20 @@ export default function Navbar() {
           )}
         </Link>
         <Link
-          href="/dashboard"
-          className={`text-sm font-semibold transition-colors ${
-            pathname === '/dashboard' ? 'text-[#f97316]' : 'text-gray-500 hover:text-[#f97316]'
-          }`}
+          href="/settings"
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Account settings"
         >
-          DASHBOARD
+          <span className="text-xl">⚙️</span>
+        </Link>
+        <Link
+          href="/dashboard"
+          className={`p-2 rounded-lg transition-colors ${
+            pathname === '/dashboard' ? 'bg-orange-50 text-[#f97316]' : 'text-gray-500 hover:bg-gray-100 hover:text-[#f97316]'
+          }`}
+          aria-label="Dashboard"
+        >
+          <span className="text-xl">🏠</span>
         </Link>
       </div>
     </nav>

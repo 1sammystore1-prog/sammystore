@@ -56,9 +56,6 @@ export default function AccountsPage() {
           <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
-            ← Back to Dashboard
-          </Link>
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Buy Accounts</h1>
             <p className="text-gray-600">Premium verified accounts for all platforms</p>

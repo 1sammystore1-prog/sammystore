@@ -1,7 +1,6 @@
 'use client';
 
-// TODO: replace with your real WhatsApp business number, digits only, country code first (no + or spaces)
-const WHATSAPP_NUMBER = '234XXXXXXXXXX';
+const WHATSAPP_NUMBER = '2348163137129';
 const DEFAULT_MESSAGE = 'Hi, I need help with my SammyStore order';
 
 export default function WhatsAppWidget() {

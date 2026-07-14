@@ -12,6 +12,7 @@ const LINKS = [
   { href: '/fund', label: 'Fund Wallet' },
   { href: '/orders', label: 'My Orders' },
   { href: '/history', label: 'Transaction History' },
+  { href: '/settings', label: 'Account Settings' },
 ];
 
 export default function Sidebar() {

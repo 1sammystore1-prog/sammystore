@@ -11,7 +11,7 @@ function pickVideo(obj: any): string | null {
 }
 
 export async function GET() {
-  const apiKey = process.env.YOUR_DANOTP_API_KEY;
+  const apiKey = process.env.BENOTP_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json({
@@ -22,7 +22,7 @@ export async function GET() {
   }
 
   try {
-    const url = `https://www.danotp.com.ng/stubs/buy-accounts.php?action=getProducts&api_key=${apiKey}`;
+    const url = `https://www.benotp.com/stubs/buy-accounts.php?action=getProducts&api_key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'GET',

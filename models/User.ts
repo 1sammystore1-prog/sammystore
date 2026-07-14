@@ -9,6 +9,8 @@ export interface IUser extends Document {
   walletBalance: number;
   suspended: boolean;
   suspendReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

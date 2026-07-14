@@ -240,8 +240,8 @@ export default function Home() {
             </div>
             <div>
               <h4 className="font-bold mb-4">Contact</h4>
-              <p className="text-gray-400">📧 support@sammystore.com</p>
-              <p className="text-gray-400">📱 +234 XXX XXX XXXX</p>
+              <p className="text-gray-400">📧 1sammystore1@gmail.com</p>
+              <p className="text-gray-400">📱 +234 816 313 7129</p>
             </div>
           </div>
         </div>
