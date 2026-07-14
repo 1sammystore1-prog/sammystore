@@ -102,6 +102,46 @@ export default function SmmPage() {
 
   const effectiveQuantity = quantity === 'custom' ? parseInt(customQuantity) || 0 : parseInt(quantity) || 0;
 
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [cartMsg, setCartMsg] = useState('');
+
+  const handleAddToCart = async () => {
+    if (!selectedService || !link || !effectiveQuantity) return;
+    setAddingToCart(true);
+    setCartMsg('');
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setCartMsg('Please login to add to cart');
+      setAddingToCart(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: 'smm',
+          productId: selectedService.service,
+          name: selectedService.name,
+          category: selectedService.category,
+          unitPrice: selectedService.rate,
+          quantity: effectiveQuantity,
+          link,
+        }),
+      });
+      const data = await res.json();
+      setCartMsg(data.success ? 'Added to cart!' : data.error || 'Failed to add to cart');
+    } catch (error: any) {
+      setCartMsg('Network error: ' + error.message);
+    }
+    setAddingToCart(false);
+  };
+
   const handleOrder = async () => {
     setPurchasing(true);
     setMsg('');
@@ -254,13 +294,28 @@ export default function SmmPage() {
               />
             </div>
 
-            <button
-              onClick={handleOrder}
-              disabled={purchasing || !selectedServiceId || !link || !effectiveQuantity}
-              className="btn-primary w-full disabled:opacity-50"
-            >
-              {purchasing ? 'Processing...' : 'Place Order'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddToCart}
+                disabled={addingToCart || !selectedServiceId || !link || !effectiveQuantity}
+                className="btn-secondary flex-1 disabled:opacity-50"
+              >
+                {addingToCart ? 'Adding...' : 'Add to Cart'}
+              </button>
+              <button
+                onClick={handleOrder}
+                disabled={purchasing || !selectedServiceId || !link || !effectiveQuantity}
+                className="btn-primary flex-1 disabled:opacity-50"
+              >
+                {purchasing ? 'Processing...' : 'Place Order'}
+              </button>
+            </div>
+
+            {cartMsg && (
+              <div className="mt-3 p-3 rounded-lg bg-primary-50 text-[#b3001f] text-sm font-semibold">
+                {cartMsg}
+              </div>
+            )}
 
             {msg && (
               <div className={`mt-6 p-4 rounded-xl ${

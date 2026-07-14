@@ -6,11 +6,17 @@ import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 
 interface CartItem {
+  type: 'account' | 'smm';
   productId: string;
   name: string;
   category?: string;
   unitPrice: number;
   quantity: number;
+  link?: string;
+}
+
+function itemCost(item: CartItem): number {
+  return item.type === 'smm' ? (item.unitPrice * item.quantity) / 1000 : item.unitPrice * item.quantity;
 }
 
 export default function CartPage() {
@@ -48,7 +54,7 @@ export default function CartPage() {
     fetchCart();
   }, []);
 
-  const removeItem = async (productId: string) => {
+  const removeItem = async (item: CartItem) => {
     const token = localStorage.getItem('token');
     const res = await fetch('/api/cart', {
       method: 'DELETE',
@@ -56,7 +62,7 @@ export default function CartPage() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ productId }),
+      body: JSON.stringify({ productId: item.productId, link: item.link }),
     });
     const data = await res.json();
     if (data.success) {
@@ -140,32 +146,41 @@ export default function CartPage() {
           {items.length === 0 ? (
             <div className="card p-10 text-center">
               <p className="text-gray-600 mb-4">Your cart is empty</p>
-              <Link href="/accounts" className="btn-primary inline-block">
-                Browse Accounts
+              <Link href="/services" className="btn-primary inline-block">
+                Browse Services
               </Link>
             </div>
           ) : (
             <>
               <div className="space-y-4 mb-6">
-                {items.map((item) => (
-                  <div key={item.productId} className="card p-4 flex items-center justify-between">
-                    <div>
-                      {item.category && (
-                        <span className="inline-block text-xs font-semibold text-[#b3001f] bg-primary-50 px-2 py-1 rounded-full mb-1">
-                          {item.category}
+                {items.map((item, idx) => (
+                  <div key={`${item.type}-${item.productId}-${item.link || idx}`} className="card p-4 flex items-center justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          item.type === 'smm' ? 'bg-purple-50 text-purple-700' : 'bg-primary-50 text-[#b3001f]'
+                        }`}>
+                          {item.type === 'smm' ? 'SMM' : item.category || 'Account'}
                         </span>
-                      )}
+                      </div>
                       <h3 className="font-bold text-gray-800">{item.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        ₦{item.unitPrice.toLocaleString()} × {item.quantity}
-                      </p>
+                      {item.type === 'smm' ? (
+                        <>
+                          <p className="text-sm text-gray-600 truncate max-w-xs">🔗 {item.link}</p>
+                          <p className="text-sm text-gray-600">{item.quantity.toLocaleString()} units</p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-600">
+                          ₦{item.unitPrice.toLocaleString()} × {item.quantity}
+                        </p>
+                      )}
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-shrink-0">
                       <p className="font-bold text-[#b3001f]">
-                        ₦{(item.unitPrice * item.quantity).toLocaleString()}
+                        ₦{itemCost(item).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </p>
                       <button
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(item)}
                         className="text-sm text-gray-400 hover:text-red-600 transition-colors"
                         aria-label={`Remove ${item.name}`}
                       >
@@ -179,7 +194,9 @@ export default function CartPage() {
               <div className="card p-6 flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Total</p>
-                  <p className="text-2xl font-bold text-gray-800">₦{total.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    ₦{total.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <button
                   onClick={handleCheckout}
