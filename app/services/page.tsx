@@ -13,6 +13,7 @@ export default function ServicesCatalogPage() {
   const [accountsLoading, setAccountsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('All');
 
+  const [smmServices, setSmmServices] = useState<any[]>([]);
   const [smmCategories, setSmmCategories] = useState<string[]>([]);
   const [smmLoading, setSmmLoading] = useState(true);
 
@@ -29,6 +30,7 @@ export default function ServicesCatalogPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.services)) {
+          setSmmServices(data.services);
           const set = new Set<string>();
           data.services.forEach((s: any) => set.add(s.category || 'Other'));
           setSmmCategories(Array.from(set).sort());
@@ -37,6 +39,18 @@ export default function ServicesCatalogPage() {
       .catch(() => {})
       .finally(() => setSmmLoading(false));
   }, []);
+
+  // Cheapest rate (per 1000) within each SMM category, so the catalog can
+  // show real "from ₦X" pricing instead of a bare list of category names.
+  const smmCategoryStartingPrice = useMemo(() => {
+    const map: Record<string, number> = {};
+    smmServices.forEach((s: any) => {
+      const cat = s.category || 'Other';
+      const rate = parseFloat(s.rate) || 0;
+      if (rate > 0 && (!(cat in map) || rate < map[cat])) map[cat] = rate;
+    });
+    return map;
+  }, [smmServices]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -125,7 +139,12 @@ export default function ServicesCatalogPage() {
                       href={`/smm?category=${encodeURIComponent(cat)}`}
                       className="card px-4 py-2 text-sm text-gray-700 hover:border-[#f97316] border-2 border-transparent"
                     >
-                      {cat}
+                      <span>{cat}</span>
+                      {smmCategoryStartingPrice[cat] != null && (
+                        <span className="ml-2 text-[#f97316] font-semibold">
+                          from ₦{smmCategoryStartingPrice[cat].toLocaleString(undefined, { maximumFractionDigits: 2 })}/1000
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </div>
@@ -178,8 +197,13 @@ export default function ServicesCatalogPage() {
                         </span>
                       )}
                       <h3 className="text-lg font-bold text-gray-800 mb-2">{product.name || product.title}</h3>
-                      <p className="text-xl font-bold text-[#f97316]">
+                      <p className="text-xl font-bold text-[#f97316] mb-1">
                         ₦{parseFloat(product.price || '0').toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {(product.stock ?? 0) > 0 || product.stock === undefined
+                          ? `${product.stock || 'In Stock'} available`
+                          : 'Out of stock'}
                       </p>
                     </Link>
                   ))}

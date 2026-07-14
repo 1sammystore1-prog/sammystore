@@ -190,29 +190,50 @@ export async function getPrices(countryId: string) {
 }
 
 export async function buyNumber(countryId: string, serviceCode: string) {
-  const data = await tigerRequest('getNumber', {
+  // NOTE: `getNumber` (v1) returns a plain-text response like
+  // "ACCESS_NUMBER:123456789:79991234567" on success, or a bare error
+  // token (NO_NUMBERS, NO_BALANCE, BAD_SERVICE, ...) on failure - it never
+  // returns JSON. The code here previously assumed a JSON object with
+  // `id`/`number` fields, so every single purchase fell through to
+  // "Invalid buy number response" regardless of whether TigerSMS actually
+  // issued a number. `getNumberV2` is the JSON-native equivalent and
+  // returns {activationId, phoneNumber, ...} on success while still
+  // returning the same bare error tokens as plain text on failure.
+  const data = await tigerRequest('getNumberV2', {
     country: countryId,
     service: serviceCode,
     activationType: 'SMS',
     fixedPrice: 'true'
   });
-  
-  if (typeof data === 'string' && data.startsWith('ERROR')) {
-    throw new Error(`Buy number error: ${data}`);
+
+  if (typeof data === 'string') {
+    const KNOWN_ERRORS: Record<string, string> = {
+      NO_NUMBERS: 'No numbers available for this service/country right now',
+      NO_BALANCE: 'Provider balance too low to fulfil this order',
+      BAD_KEY: 'TigerSMS API key is invalid or missing',
+      BAD_SERVICE: 'Unknown service',
+      BAD_COUNTRY: 'Unknown country',
+      WRONG_SERVICE: 'Unknown service',
+      ERROR_SQL: 'TigerSMS provider error, please try again',
+    };
+    throw new Error(KNOWN_ERRORS[data] || `Buy number error: ${data}`);
   }
-  
-  if (typeof data !== 'object') {
+
+  if (typeof data !== 'object' || !data) {
     throw new Error('Invalid buy number response');
   }
-  
-  // Response format: {"id": 123456789, "number": "+1234567890", "server": 1}
-  if (!data.id || !data.number) {
+
+  // getNumberV2 success shape: {activationId, phoneNumber, activationCost, ...}
+  const id = data.activationId ?? data.id;
+  const number = data.phoneNumber ?? data.number;
+
+  if (!id || !number) {
     throw new Error(`Invalid response: ${JSON.stringify(data)}`);
   }
-  
+
   return {
-    id: String(data.id),
-    number: String(data.number),
+    id: String(id),
+    number: String(number),
     server: data.server
   };
 }

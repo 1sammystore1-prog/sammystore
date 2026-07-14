@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Ticker from '@/components/Ticker';
 import FAQAccordion from '@/components/FAQAccordion';
+import Testimonials from '@/components/Testimonials';
 
 interface Activity {
   user: string;
@@ -101,7 +102,7 @@ export default function Home() {
         </div>
       </section>
 
-      {stats && (stats.totalUsers > 0 || stats.totalTransactions > 0) && (
+      {stats && (stats.totalUsers >= 50 || stats.totalTransactions >= 100) && (
         <section className="bg-white py-8 border-y border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 gap-6 text-center">
@@ -210,6 +211,14 @@ export default function Home() {
               <p className="text-gray-600 max-w-md">Buy a number, grow a social account, or get a verified account - one wallet powers it all.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section id="testimonials" className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 text-center">What people are saying</h2>
+          <p className="text-gray-600 text-center mb-12">Real feedback from people using SammyStore.</p>
+          <Testimonials />
         </div>
       </section>
 

@@ -21,7 +21,9 @@ export default function AdminPage() {
   const [pricingMsgType, setPricingMsgType] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [txnSearchTerm, setTxnSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('users');
+  const [viewUser, setViewUser] = useState<any>(null);
   const [modal, setModal] = useState<{ type: string; userId?: string; userName?: string } | null>(null);
   const [modalAmount, setModalAmount] = useState('');
   const [modalReason, setModalReason] = useState('');
@@ -178,6 +180,20 @@ export default function AdminPage() {
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredTransactions = transactions.filter((txn: any) => {
+    const q = txnSearchTerm.toLowerCase();
+    if (!q) return true;
+    return (
+      (txn.userName || '').toLowerCase().includes(q) ||
+      (txn.userEmail || '').toLowerCase().includes(q) ||
+      (txn.description || '').toLowerCase().includes(q) ||
+      (txn.type || '').toLowerCase().includes(q)
+    );
+  });
+
+  const userTransactions = (userId: string) =>
+    transactions.filter((txn: any) => String(txn.userId) === String(userId));
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center">
@@ -301,6 +317,9 @@ export default function AdminPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex flex-wrap gap-2">
+                        <button onClick={() => setViewUser(user)} className="px-3 py-1 bg-gray-100 border border-gray-300 rounded text-gray-700 text-xs font-mono hover:bg-gray-200">
+                          VIEW
+                        </button>
                         <button onClick={() => setModal({ type: 'add', userId: user._id, userName: user.name })} className="px-3 py-1 bg-green-500/20 border border-green-300/30 rounded text-green-600 text-xs font-mono hover:bg-green-500/30">
                           + ADD
                         </button>
@@ -331,11 +350,21 @@ export default function AdminPage() {
 
       {activeTab === 'transactions' && (
         <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl p-6">
-          <h2 className="text-2xl font-bold text-gray-800 font-mono mb-6">{`> ALL_TRANSACTIONS`}</h2>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h2 className="text-2xl font-bold text-gray-800 font-mono">{`> ALL_ORDERS_&_TRANSACTIONS`}</h2>
+            <input
+              type="text"
+              placeholder="Search by user, email, type..."
+              value={txnSearchTerm}
+              onChange={(e) => setTxnSearchTerm(e.target.value)}
+              className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:border-[#f97316] focus:outline-none"
+            />
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
+                  <th className="text-left p-4 text-[#f97316] font-mono text-sm">USER</th>
                   <th className="text-left p-4 text-[#f97316] font-mono text-sm">TYPE</th>
                   <th className="text-left p-4 text-[#f97316] font-mono text-sm">DESCRIPTION</th>
                   <th className="text-left p-4 text-[#f97316] font-mono text-sm">AMOUNT</th>
@@ -344,8 +373,12 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((txn: any) => (
+                {filteredTransactions.map((txn: any) => (
                   <tr key={txn._id} className="border-b border-gray-200 hover:bg-gray-50/50">
+                    <td className="p-4 text-sm">
+                      <div className="text-gray-800 font-semibold">{txn.userName}</div>
+                      <div className="text-gray-500 text-xs">{txn.userEmail}</div>
+                    </td>
                     <td className="p-4 text-gray-800 uppercase font-mono text-xs">{txn.type}</td>
                     <td className="p-4 text-gray-500 text-sm">{txn.description}</td>
                     <td className="p-4 text-amber-600 font-mono">₦{txn.amount?.toLocaleString()}</td>
@@ -357,8 +390,67 @@ export default function AdminPage() {
                     <td className="p-4 text-gray-500 text-sm">{new Date(txn.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
+                {filteredTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-6 text-center text-gray-500 text-sm">No matching transactions.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {viewUser && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 font-mono">{viewUser.name}</h3>
+                <p className="text-gray-500 text-sm">{viewUser.email}</p>
+              </div>
+              <button onClick={() => setViewUser(null)} className="text-gray-500 hover:text-gray-800 text-xl leading-none">✕</button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 font-mono">BALANCE</p>
+                <p className="text-lg font-bold text-amber-600">₦{(viewUser.walletBalance || 0).toLocaleString()}</p>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 font-mono">STATUS</p>
+                <p className={`text-lg font-bold ${viewUser.suspended ? 'text-[#f97316]' : 'text-green-600'}`}>{viewUser.suspended ? 'SUSPENDED' : 'ACTIVE'}</p>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <p className="text-xs text-gray-500 font-mono">JOINED</p>
+                <p className="text-sm font-bold text-gray-800">{viewUser.createdAt ? new Date(viewUser.createdAt).toLocaleDateString() : '-'}</p>
+              </div>
+            </div>
+
+            {viewUser.suspended && viewUser.suspendReason && (
+              <p className="text-sm text-[#f97316] mb-4">Suspend reason: {viewUser.suspendReason}</p>
+            )}
+
+            <h4 className="text-gray-800 font-mono font-bold mb-3">{`> ORDER_HISTORY`}</h4>
+            <div className="space-y-2">
+              {userTransactions(viewUser._id).length === 0 && (
+                <p className="text-gray-500 text-sm">No transactions yet.</p>
+              )}
+              {userTransactions(viewUser._id).map((txn: any) => (
+                <div key={txn._id} className="bg-white border border-gray-200 rounded-lg p-3 flex justify-between items-center text-sm">
+                  <div>
+                    <p className="text-gray-800 font-semibold">{txn.description}</p>
+                    <p className="text-gray-500 text-xs uppercase font-mono">{txn.type} · {new Date(txn.createdAt).toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-amber-600 font-mono">₦{txn.amount?.toLocaleString()}</p>
+                    <span className={`text-xs font-mono ${txn.status === 'success' ? 'text-green-600' : txn.status === 'pending' ? 'text-amber-600' : 'text-[#f97316]'}`}>
+                      {txn.status.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
