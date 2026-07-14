@@ -11,7 +11,7 @@ function pickVideo(obj: any): string | null {
 }
 function pickStock(obj: any): number | null {
   if (!obj) return null;
-  // DaNotp's field name for available quantity isn't confirmed (their docs
+  // BeNotp's field name for available quantity isn't confirmed (their docs
   // are behind a login), so check every common variant. Returns null - not
   // 0 - when no stock field is present at all, so "genuinely unknown" is
   // never confused with "confirmed zero/out of stock".
@@ -25,7 +25,7 @@ function pickStock(obj: any): number | null {
 }
 
 export async function GET() {
-  const apiKey = process.env.YOUR_DANOTP_API_KEY;
+  const apiKey = process.env.BENOTP_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json({
@@ -36,7 +36,7 @@ export async function GET() {
   }
 
   try {
-    const url = `https://www.danotp.com.ng/stubs/buy-accounts.php?action=getProducts&api_key=${apiKey}`;
+    const url = `https://www.benotp.com/stubs/buy-accounts.php?action=getProducts&api_key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'GET',
