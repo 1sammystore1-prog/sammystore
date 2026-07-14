@@ -204,7 +204,14 @@ export default function SmmPage() {
 
           <div className="card p-6 md:p-8 max-w-2xl">
             {loading ? (
-              <p className="text-gray-600">Loading services...</p>
+              <div className="flex flex-col items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#b3001f] mb-3"></div>
+                <p className="text-gray-600 text-sm">Loading services...</p>
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No SMM services available right now. Please try again shortly.</p>
+              </div>
             ) : (
               <>
                 <div className="mb-6">
