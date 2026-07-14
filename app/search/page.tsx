@@ -41,7 +41,7 @@ function SearchInner() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
 
@@ -76,13 +76,13 @@ function SearchInner() {
                 <Link
                   key={`${r.type}-${r.id}`}
                   href={r.href}
-                  className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#b3001f] block"
+                  className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#f97316] block"
                 >
-                  <span className="inline-block text-xs font-semibold text-[#b3001f] bg-primary-50 px-2 py-1 rounded-full mb-2">
+                  <span className="inline-block text-xs font-semibold text-[#f97316] bg-primary-50 px-2 py-1 rounded-full mb-2">
                     {r.type === 'account' ? r.category || 'Account' : 'SMM Service'}
                   </span>
                   <h3 className="text-lg font-bold text-gray-800 mb-2">{r.name}</h3>
-                  <p className="text-xl font-bold text-[#b3001f]">
+                  <p className="text-xl font-bold text-[#f97316]">
                     ₦{r.price.toLocaleString()}
                     {r.type === 'smm' && <span className="text-sm text-gray-500 font-normal"> /1000</span>}
                   </p>

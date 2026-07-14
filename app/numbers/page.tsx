@@ -212,7 +212,7 @@ export default function VirtualNumbersPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b3001f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f97316] mx-auto mb-4"></div>
           <p className="text-white">Loading countries...</p>
         </div>
       </div>
@@ -224,7 +224,7 @@ export default function VirtualNumbersPage() {
       {/* Header */}
       <nav className="bg-gray-800 shadow-lg p-4 mb-6 rounded-lg border border-gray-700">
         <Link href="/dashboard" className="text-2xl font-bold">
-          <span className="text-[#b3001f]">SAMMY</span>
+          <span className="text-[#f97316]">SAMMY</span>
           <span className="text-white">STORE</span>
         </Link>
       </nav>
@@ -273,20 +273,20 @@ export default function VirtualNumbersPage() {
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors ${
                         step.done
-                          ? 'bg-[#b3001f] border-[#b3001f] text-white'
+                          ? 'bg-[#f97316] border-[#f97316] text-white'
                           : 'border-gray-600 text-gray-400'
                       }`}
                     >
                       {idx + 1}
                     </div>
-                    <span className={`text-xs mt-1 ${step.done ? 'text-[#e11d3f]' : 'text-gray-500'}`}>
+                    <span className={`text-xs mt-1 ${step.done ? 'text-[#fb923c]' : 'text-gray-500'}`}>
                       {step.label}
                     </span>
                   </div>
                   {idx < arr.length - 1 && (
                     <div
                       className={`w-10 h-0.5 mx-2 mb-5 ${
-                        arr[idx + 1].done || step.done ? 'bg-[#b3001f]' : 'bg-gray-600'
+                        arr[idx + 1].done || step.done ? 'bg-[#f97316]' : 'bg-gray-600'
                       }`}
                     />
                   )}
@@ -302,7 +302,7 @@ export default function VirtualNumbersPage() {
               <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#b3001f] outline-none transition"
+                className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#f97316] outline-none transition"
               >
                 <option value="">Choose a country...</option>
                 {countries.map((c) => (
@@ -327,7 +327,7 @@ export default function VirtualNumbersPage() {
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
                   disabled={!selectedCountry || services.length === 0}
-                  className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#b3001f] outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#f97316] outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <option value="">Choose a service...</option>
                   {services.map((s) => (
@@ -343,7 +343,7 @@ export default function VirtualNumbersPage() {
             <button
               onClick={handleBuy}
               disabled={!selectedCountry || !selectedService || buyingNumber}
-              className="w-full bg-[#b3001f] hover:bg-[#8c0018] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-[#f97316] hover:bg-[#ea580c] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
             >
               {buyingNumber ? (
                 <>
@@ -362,7 +362,7 @@ export default function VirtualNumbersPage() {
 
             <div className="bg-gray-700 p-4 rounded-lg mb-4">
               <p className="text-gray-400 text-sm mb-1">Phone Number</p>
-              <p className="text-3xl font-mono font-bold text-[#b3001f] break-all">{order.phone}</p>
+              <p className="text-3xl font-mono font-bold text-[#f97316] break-all">{order.phone}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">

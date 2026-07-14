@@ -24,8 +24,7 @@ const TYPE_ICON: Record<string, string> = {
   virtual_number: '📞',
   smm: '🚀',
   account_purchase: '📱',
-  deposit: '💳',
-  manual_fund_request: '💳',
+  wallet_fund: '💳',
   refund: '↩️',
   withdrawal: '🏦',
   transfer: '🔁',
@@ -71,27 +70,27 @@ function NumberStatusRow({ number }: { number: RecentNumber }) {
 
   const badge: Record<string, string> = {
     loading: 'bg-gray-100 text-gray-600',
-    pending: 'bg-[#e6a817]/10 text-[#e6a817]',
-    completed: 'bg-[#25d366]/10 text-[#25d366]',
-    cancelled: 'bg-[#e11d3f]/10 text-[#e11d3f]',
+    pending: 'bg-amber-50 text-amber-700',
+    completed: 'bg-green-50 text-green-700',
+    cancelled: 'bg-red-50 text-red-700',
     released: 'bg-gray-100 text-gray-500',
     unknown: 'bg-gray-100 text-gray-500',
-    error: 'bg-[#e11d3f]/10 text-[#e11d3f]',
+    error: 'bg-red-50 text-red-700',
   };
 
   return (
-    <div className="card-dark flex items-center justify-between">
+    <div className="card p-4 flex items-center justify-between">
       <div>
-        <p className="text-[#e0e0e0] font-semibold">{number.description}</p>
-        <p className="text-[#a0a0b0] text-xs">{timeAgo(number.createdAt)}</p>
-        {sms && <p className="text-[#25d366] text-sm font-mono mt-1">Code: {sms}</p>}
+        <p className="text-gray-800 font-semibold">{number.description}</p>
+        <p className="text-gray-400 text-xs">{timeAgo(number.createdAt)}</p>
+        {sms && <p className="text-green-600 text-sm font-mono mt-1">Code: {sms}</p>}
       </div>
       <div className="flex items-center gap-3">
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${badge[status]}`}>
           {status === 'loading' ? 'checking...' : status}
         </span>
         {status !== 'loading' && (
-          <button onClick={checkStatus} className="text-[#a0a0b0] hover:text-[#e11d3f] text-xs">
+          <button onClick={checkStatus} className="text-gray-400 hover:text-[#f97316] text-xs">
             ↻
           </button>
         )}
@@ -137,39 +136,38 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
           <div className="mb-8">
-            <p className="terminal-text text-sm mb-2">{`> SYSTEM_ACCESS: GRANTED`}</p>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">DASHBOARD</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Dashboard</h1>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="card-dark bg-gradient-to-br from-[#e11d3f]/10 to-[#0080ff]/10 border-[#e11d3f]/30">
-              <h3 className="text-[#e11d3f] text-sm font-mono mb-2">{`> WALLET_BALANCE`}</h3>
-              <p className="text-3xl md:text-4xl font-bold text-[#e0e0e0] mb-4">₦{balance.toLocaleString()}.00</p>
-              <Link href="/fund" className="btn-neon-green text-sm py-2 px-4 inline-block">
-                FUND WALLET
+            <div className="card p-6 bg-gradient-to-br from-orange-50 to-white">
+              <h3 className="text-[#f97316] text-sm font-semibold mb-2">Wallet Balance</h3>
+              <p className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">₦{balance.toLocaleString()}.00</p>
+              <Link href="/fund" className="btn-primary text-sm py-2 px-4 inline-block">
+                Fund Wallet
               </Link>
             </div>
-            
-            <div className="card-dark">
-              <h3 className="text-[#8c0018] text-sm font-mono mb-2">{`> TOTAL_TRANSACTIONS`}</h3>
-              <p className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">{totalTransactions}</p>
+
+            <div className="card p-6">
+              <h3 className="text-gray-500 text-sm font-semibold mb-2">Total Transactions</h3>
+              <p className="text-3xl md:text-4xl font-bold text-gray-800">{totalTransactions}</p>
             </div>
 
-            <div className="card-dark">
-              <h3 className="text-[#25d366] text-sm font-mono mb-2">{`> ACTIVE_NUMBERS`}</h3>
-              <p className="text-3xl md:text-4xl font-bold text-[#e0e0e0]">{activeNumbers}</p>
+            <div className="card p-6">
+              <h3 className="text-gray-500 text-sm font-semibold mb-2">Active Numbers</h3>
+              <p className="text-3xl md:text-4xl font-bold text-gray-800">{activeNumbers}</p>
             </div>
           </div>
 
           {recentNumbers.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-xl font-bold text-[#e0e0e0] mb-4 font-mono">{`> LIVE_NUMBERS (last 24h)`}</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Live Numbers (last 24h)</h2>
               <div className="space-y-3">
                 {recentNumbers.map((n) => (
                   <NumberStatusRow key={n.activationId} number={n} />
@@ -179,26 +177,26 @@ export default function DashboardPage() {
           )}
 
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-[#e0e0e0] mb-4 font-mono">{`> RECENT_ACTIVITY`}</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h2>
             {recentActivity.length === 0 ? (
-              <div className="card-dark text-[#a0a0b0] text-sm">No activity yet - your purchases will show up here.</div>
+              <div className="card p-6 text-gray-500 text-sm">No activity yet - your purchases will show up here.</div>
             ) : (
               <div className="space-y-3">
                 {recentActivity.map((tx) => (
-                  <div key={tx._id} className="card-dark flex items-center justify-between">
+                  <div key={tx._id} className="card p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{TYPE_ICON[tx.type] || '•'}</span>
                       <div>
-                        <p className="text-[#e0e0e0] font-semibold text-sm">{tx.description}</p>
-                        <p className="text-[#a0a0b0] text-xs">{timeAgo(tx.createdAt)}</p>
+                        <p className="text-gray-800 font-semibold text-sm">{tx.description}</p>
+                        <p className="text-gray-400 text-xs">{timeAgo(tx.createdAt)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-[#e11d3f] font-bold text-sm">₦{tx.amount.toLocaleString()}</span>
+                      <span className="text-[#f97316] font-bold text-sm">₦{tx.amount.toLocaleString()}</span>
                       {tx.type === 'account_purchase' && tx.metadata?.productId && (
                         <Link
                           href={`/accounts/${tx.metadata.productId}`}
-                          className="text-xs text-[#8c0018] hover:text-[#e11d3f] font-semibold whitespace-nowrap"
+                          className="text-xs text-gray-500 hover:text-[#f97316] font-semibold whitespace-nowrap"
                         >
                           Buy Again
                         </Link>
@@ -210,27 +208,27 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <h2 className="text-2xl font-bold text-[#e0e0e0] mb-6 font-mono">{`> SERVICES`}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Services</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/numbers" className="card-dark group">
+            <Link href="/numbers" className="card p-6 group">
               <div className="text-4xl mb-4">📡</div>
-              <h3 className="text-xl font-bold mb-2 text-[#e11d3f]">Virtual Numbers</h3>
-              <p className="text-[#a0a0b0] text-sm">Rent anonymous numbers</p>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Virtual Numbers</h3>
+              <p className="text-gray-500 text-sm">Rent anonymous numbers</p>
             </Link>
-            <Link href="/smm" className="card-dark group">
+            <Link href="/smm" className="card p-6 group">
               <div className="text-4xl mb-4">📊</div>
-              <h3 className="text-xl font-bold mb-2 text-[#8c0018]">SMM Panel</h3>
-              <p className="text-[#a0a0b0] text-sm">Social media boost</p>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">SMM Panel</h3>
+              <p className="text-gray-500 text-sm">Social media boost</p>
             </Link>
-            <Link href="/accounts" className="card-dark group">
+            <Link href="/accounts" className="card p-6 group">
               <div className="text-4xl mb-4">🛍️</div>
-              <h3 className="text-xl font-bold mb-2 text-[#e6a817]">Buy Accounts</h3>
-              <p className="text-[#a0a0b0] text-sm">Pre-verified accounts</p>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Buy Accounts</h3>
+              <p className="text-gray-500 text-sm">Pre-verified accounts</p>
             </Link>
-            <Link href="/services" className="card-dark group">
+            <Link href="/services" className="card p-6 group">
               <div className="text-4xl mb-4">🗂️</div>
-              <h3 className="text-xl font-bold mb-2 text-[#25d366]">Browse All</h3>
-              <p className="text-[#a0a0b0] text-sm">Everything in one catalog</p>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Browse All</h3>
+              <p className="text-gray-500 text-sm">Everything in one catalog</p>
             </Link>
           </div>
         </main>

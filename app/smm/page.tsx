@@ -193,7 +193,7 @@ function SmmInner() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
           <div className="mb-8">
@@ -204,7 +204,7 @@ function SmmInner() {
           <div className="card p-6 md:p-8 max-w-2xl">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#b3001f] mb-3"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#f97316] mb-3"></div>
                 <p className="text-gray-600 text-sm">Loading services...</p>
               </div>
             ) : categories.length === 0 ? (
@@ -278,7 +278,7 @@ function SmmInner() {
                       />
                       {customQuantity && (
                         <p className="text-sm text-gray-600 mt-2">
-                          Price: <span className="font-bold text-[#b3001f]">
+                          Price: <span className="font-bold text-[#f97316]">
                             ₦{priceFor(parseInt(customQuantity) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                           </span>
                         </p>
@@ -318,7 +318,7 @@ function SmmInner() {
             </div>
 
             {cartMsg && (
-              <div className="mt-3 p-3 rounded-lg bg-primary-50 text-[#b3001f] text-sm font-semibold">
+              <div className="mt-3 p-3 rounded-lg bg-primary-50 text-[#f97316] text-sm font-semibold">
                 {cartMsg}
               </div>
             )}

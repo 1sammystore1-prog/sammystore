@@ -3,34 +3,37 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const LINKS = [
-  { href: '/dashboard', label: 'DASHBOARD' },
-  { href: '/services', label: 'BROWSE ALL' },
-  { href: '/numbers', label: 'VIRTUAL NUMBERS' },
-  { href: '/smm', label: 'SMM PANEL' },
-  { href: '/accounts', label: 'BUY ACCOUNTS' },
-  { href: '/cart', label: 'CART' },
-  { href: '/fund', label: 'FUND WALLET' },
-  { href: '/orders', label: 'MY ORDERS' },
-  { href: '/history', label: 'TRANSACTION HISTORY' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/services', label: 'Browse All' },
+  { href: '/numbers', label: 'Virtual Numbers' },
+  { href: '/smm', label: 'SMM Panel' },
+  { href: '/accounts', label: 'Buy Accounts' },
+  { href: '/cart', label: 'Cart' },
+  { href: '/fund', label: 'Fund Wallet' },
+  { href: '/orders', label: 'My Orders' },
+  { href: '/history', label: 'Transaction History' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-full md:w-64 bg-[#0f0f16] border-r border-[#2a2a3a] p-6 md:min-h-screen">
-      <nav className="flex flex-col space-y-4">
+    // Hidden on mobile - BottomNav covers primary navigation there, so this
+    // full link list no longer stacks above every page's content on phones.
+    <aside className="hidden md:block md:w-64 bg-white border-r border-gray-200 p-6 md:min-h-screen">
+      <nav className="flex flex-col space-y-1">
         {LINKS.map((link) => {
           const active = pathname === link.href;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`font-mono text-sm transition-colors flex items-center gap-2 ${
-                active ? 'text-[#e11d3f] font-bold' : 'text-[#a0a0b0] hover:text-[#e11d3f]'
+              className={`text-sm font-medium transition-colors px-3 py-2 rounded-lg ${
+                active
+                  ? 'bg-orange-50 text-[#f97316] font-semibold'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-[#f97316]'
               }`}
             >
-              <span className={active ? 'opacity-100' : 'opacity-40'}>{'>'}</span>
               {link.label}
             </Link>
           );

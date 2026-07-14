@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #fff1f2;
-  --color-primary-100: #ffe0e3;
-  --color-primary-200: #ffc2c8;
-  --color-primary-300: #ff98a3;
-  --color-primary-400: #f65a6c;
-  --color-primary-500: #e11d3f;
-  --color-primary-600: #b3001f;
-  --color-primary-700: #8c0018;
-  --color-primary-800: #650012;
-  --color-primary-900: #42000c;
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
 
   --color-cream-50: #fffdfb;
   --color-cream-100: #fff7ee;
@@ -18,9 +18,9 @@
 }
 
 :root {
-  --primary: #b3001f;
-  --primary-dark: #8c0018;
-  --primary-light: #e11d3f;
+  --primary: #f97316;
+  --primary-dark: #ea580c;
+  --primary-light: #fb923c;
   --secondary: #1e293b;
   --background: #fff7ee;
   --foreground: #1a1a1a;
@@ -33,7 +33,7 @@ body {
 }
 
 .btn-primary {
-  background-color: #b3001f;
+  background-color: #f97316;
   color: white;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
@@ -43,14 +43,14 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #8c0018;
+  background-color: #ea580c;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
   background-color: white;
-  border: 2px solid #b3001f;
-  color: #b3001f;
+  border: 2px solid #f97316;
+  color: #f97316;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
@@ -58,7 +58,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background-color: #b3001f;
+  background-color: #f97316;
   color: white;
 }
 
@@ -84,8 +84,8 @@ body {
 }
 
 .input-field:focus {
-  border-color: #b3001f;
-  box-shadow: 0 0 0 3px rgba(179, 0, 31, 0.1);
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 @keyframes marquee {

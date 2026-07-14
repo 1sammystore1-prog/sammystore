@@ -109,7 +109,7 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b3001f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f97316] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading cart...</p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function CartPage() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
 
@@ -158,7 +158,7 @@ export default function CartPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                          item.type === 'smm' ? 'bg-purple-50 text-purple-700' : 'bg-primary-50 text-[#b3001f]'
+                          item.type === 'smm' ? 'bg-purple-50 text-purple-700' : 'bg-primary-50 text-[#f97316]'
                         }`}>
                           {item.type === 'smm' ? 'SMM' : item.category || 'Account'}
                         </span>
@@ -176,7 +176,7 @@ export default function CartPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-4 flex-shrink-0">
-                      <p className="font-bold text-[#b3001f]">
+                      <p className="font-bold text-[#f97316]">
                         ₦{itemCost(item).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       </p>
                       <button

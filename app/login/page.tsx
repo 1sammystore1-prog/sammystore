@@ -22,7 +22,6 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.success) {
-        // Save the token and user info
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         router.push('/dashboard');
@@ -36,29 +35,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
-      <div className="card-dark w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="card w-full max-w-md p-8">
         <h2 className="text-3xl font-bold text-center mb-2">
-          <span className="text-[#e11d3f]">SAMMY</span><span className="text-[#8c0018]">STORE</span>
+          <span className="text-gray-800">SAMMY</span><span className="text-[#f97316]">STORE</span>
         </h2>
-        <p className="text-center text-[#a0a0b0] mb-8 font-mono text-sm">{`> SECURE LOGIN GATEWAY`}</p>
-        
-        <form onSubmit={handleLogin} className="space-y-6">
+        <p className="text-center text-gray-500 mb-8 text-sm">Log in to your account</p>
+
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-[#e11d3f] text-sm font-mono mb-2">{`> EMAIL_ADDRESS`}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-dark" required />
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field" required />
           </div>
           <div>
-            <label className="block text-[#e11d3f] text-sm font-mono mb-2">{`> PASSWORD`}</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-dark" required />
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field" required />
           </div>
-          <button type="submit" disabled={loading} className="btn-neon-green w-full">
-            {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+          <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        {msg && <p className="mt-4 text-center text-[#e11d3f] font-mono text-sm">{msg}</p>}
-        <p className="text-center text-[#a0a0b0] mt-6 text-sm">
-          No access? <Link href="/register" className="text-[#e11d3f] hover:underline">Request Entry</Link>
+        {msg && <p className="mt-4 text-center text-red-600 text-sm font-semibold">{msg}</p>}
+        <p className="text-center text-gray-500 mt-6 text-sm">
+          Don't have an account? <Link href="/register" className="text-[#f97316] font-semibold hover:underline">Sign up</Link>
         </p>
       </div>
     </div>

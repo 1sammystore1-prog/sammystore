@@ -62,7 +62,7 @@ export default function ServicesCatalogPage() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
 
@@ -78,8 +78,8 @@ export default function ServicesCatalogPage() {
                 onClick={() => setTab(t.key)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                   tab === t.key
-                    ? 'bg-[#b3001f] text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:border-[#b3001f]'
+                    ? 'bg-[#f97316] text-white'
+                    : 'bg-white text-gray-600 border border-gray-300 hover:border-[#f97316]'
                 }`}
               >
                 {t.label}
@@ -91,7 +91,7 @@ export default function ServicesCatalogPage() {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Virtual Numbers</h2>
-                <Link href="/numbers" className="text-[#b3001f] text-sm font-semibold">
+                <Link href="/numbers" className="text-[#f97316] text-sm font-semibold">
                   Open →
                 </Link>
               </div>
@@ -111,7 +111,7 @@ export default function ServicesCatalogPage() {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-800">SMM Panel</h2>
-                <Link href="/smm" className="text-[#b3001f] text-sm font-semibold">
+                <Link href="/smm" className="text-[#f97316] text-sm font-semibold">
                   Open →
                 </Link>
               </div>
@@ -123,7 +123,7 @@ export default function ServicesCatalogPage() {
                     <Link
                       key={cat}
                       href={`/smm?category=${encodeURIComponent(cat)}`}
-                      className="card px-4 py-2 text-sm text-gray-700 hover:border-[#b3001f] border-2 border-transparent"
+                      className="card px-4 py-2 text-sm text-gray-700 hover:border-[#f97316] border-2 border-transparent"
                     >
                       {cat}
                     </Link>
@@ -138,7 +138,7 @@ export default function ServicesCatalogPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Buy Accounts</h2>
                 {tab === 'all' && (
-                  <Link href="/accounts" className="text-[#b3001f] text-sm font-semibold">
+                  <Link href="/accounts" className="text-[#f97316] text-sm font-semibold">
                     Open →
                   </Link>
                 )}
@@ -152,8 +152,8 @@ export default function ServicesCatalogPage() {
                       onClick={() => setSelectedCategory(category)}
                       className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                         selectedCategory === category
-                          ? 'bg-[#b3001f] text-white'
-                          : 'bg-white text-gray-600 border border-gray-300 hover:border-[#b3001f]'
+                          ? 'bg-[#f97316] text-white'
+                          : 'bg-white text-gray-600 border border-gray-300 hover:border-[#f97316]'
                       }`}
                     >
                       {category}
@@ -170,15 +170,15 @@ export default function ServicesCatalogPage() {
                     <Link
                       key={product.id}
                       href={`/accounts/${product.id}`}
-                      className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#b3001f] block"
+                      className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#f97316] block"
                     >
                       {product.category && (
-                        <span className="inline-block text-xs font-semibold text-[#b3001f] bg-primary-50 px-2 py-1 rounded-full mb-2">
+                        <span className="inline-block text-xs font-semibold text-[#f97316] bg-primary-50 px-2 py-1 rounded-full mb-2">
                           {product.category}
                         </span>
                       )}
                       <h3 className="text-lg font-bold text-gray-800 mb-2">{product.name || product.title}</h3>
-                      <p className="text-xl font-bold text-[#b3001f]">
+                      <p className="text-xl font-bold text-[#f97316]">
                         ₦{parseFloat(product.price || '0').toLocaleString()}
                       </p>
                     </Link>

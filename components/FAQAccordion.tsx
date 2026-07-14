@@ -13,7 +13,7 @@ const FAQS: FAQItem[] = [
   },
   {
     question: 'How do I fund my wallet?',
-    answer: 'Fund instantly via card or bank transfer through Paystack, or submit a manual bank transfer for admin verification.',
+    answer: 'Fund instantly via card or bank transfer through Paystack - it credits your wallet automatically within seconds.',
   },
   {
     question: 'What happens if a purchase fails?',
@@ -44,7 +44,7 @@ export default function FAQAccordion() {
               aria-expanded={isOpen}
             >
               <span className="font-semibold text-gray-800">{faq.question}</span>
-              <span className={`text-[#b3001f] transition-transform ${isOpen ? 'rotate-45' : ''}`}>
+              <span className={`text-[#f97316] transition-transform ${isOpen ? 'rotate-45' : ''}`}>
                 +
               </span>
             </button>

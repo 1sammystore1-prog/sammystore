@@ -39,17 +39,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#b3001f] to-[#8c0018] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#f97316] to-[#ea580c] rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">S</span>
               </div>
               <div>
                 <span className="text-2xl font-bold text-gray-800">SAMMY</span>
-                <span className="text-[#b3001f] font-bold">STORE</span>
+                <span className="text-[#f97316] font-bold">STORE</span>
               </div>
             </Link>
 
             <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-gray-600 hover:text-[#b3001f] font-medium">
+              <Link href="/login" className="text-gray-600 hover:text-[#f97316] font-medium">
                 Login
               </Link>
               <Link href="/register" className="btn-primary">
@@ -64,7 +64,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             <span className="text-gray-800">One Wallet. </span>
-            <span className="text-[#b3001f]">Every Digital Service.</span>
+            <span className="text-[#f97316]">Every Digital Service.</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Virtual numbers, social media growth, and verified accounts — all powered
@@ -73,15 +73,15 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-              <span className="text-[#b3001f]">✓</span>
+              <span className="text-[#f97316]">✓</span>
               <span className="text-gray-700 font-medium">100% Verified</span>
             </div>
             <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-              <span className="text-[#b3001f]">⚡</span>
+              <span className="text-[#f97316]">⚡</span>
               <span className="text-gray-700 font-medium">Instant Delivery</span>
             </div>
             <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
-              <span className="text-[#b3001f]">🔒</span>
+              <span className="text-[#f97316]">🔒</span>
               <span className="text-gray-700 font-medium">Secure Payments</span>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function Home() {
           </div>
 
           <p className="text-sm text-gray-500 mt-6">
-            Already have an account? <Link href="/login" className="text-[#b3001f] font-semibold">Log in here →</Link>
+            Already have an account? <Link href="/login" className="text-[#f97316] font-semibold">Log in here →</Link>
           </p>
         </div>
       </section>
@@ -106,11 +106,11 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 gap-6 text-center">
               <div>
-                <p className="text-3xl font-bold text-[#b3001f]">{stats.totalUsers.toLocaleString()}+</p>
+                <p className="text-3xl font-bold text-[#f97316]">{stats.totalUsers.toLocaleString()}+</p>
                 <p className="text-gray-600 text-sm">Registered users</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-[#b3001f]">{stats.totalTransactions.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-[#f97316]">{stats.totalTransactions.toLocaleString()}</p>
                 <p className="text-gray-600 text-sm">Successful transactions</p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 text-center">Everything in one place</h2>
           <p className="text-gray-600 text-center mb-4">One wallet. Zero friction.</p>
           <p className="text-center mb-12">
-            <Link href="/services" className="text-[#b3001f] font-semibold">Browse full catalog →</Link>
+            <Link href="/services" className="text-[#f97316] font-semibold">Browse full catalog →</Link>
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href="/numbers" className="card p-6 text-center group">
@@ -168,10 +168,10 @@ export default function Home() {
             <div className="flex overflow-x-auto space-x-6 pb-2">
               {activity.map((item, idx) => (
                 <div key={idx} className="flex items-center space-x-2 whitespace-nowrap">
-                  <span className="text-[#b3001f] font-semibold">{item.user}</span>
+                  <span className="text-[#f97316] font-semibold">{item.user}</span>
                   <span className="text-gray-600">bought</span>
                   <span className="text-gray-800 font-medium">{item.description}</span>
-                  <span className="text-[#b3001f] font-semibold">₦{item.amount.toLocaleString()}</span>
+                  <span className="text-[#f97316] font-semibold">₦{item.amount.toLocaleString()}</span>
                   <span className="text-gray-400 text-sm">{item.time}</span>
                 </div>
               ))}
@@ -187,7 +187,7 @@ export default function Home() {
 
           <div className="space-y-8">
             <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-[#b3001f] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+              <div className="w-12 h-12 bg-[#f97316] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 1
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Create Your Account</h3>
@@ -195,15 +195,15 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-[#b3001f] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+              <div className="w-12 h-12 bg-[#f97316] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 2
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Fund Your Wallet</h3>
-              <p className="text-gray-600 max-w-md">Card or bank transfer via Paystack, or a manual transfer with quick verification.</p>
+              <p className="text-gray-600 max-w-md">Card or bank transfer via Paystack - instant, secure, no waiting for approval.</p>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-[#b3001f] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
+              <div className="w-12 h-12 bg-[#f97316] text-white rounded-full flex items-center justify-center text-xl font-bold mb-4">
                 3
               </div>
               <h3 className="text-xl font-bold text-gray-800 mb-2">Use Anything, Anytime</h3>
@@ -226,16 +226,16 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <h3 className="text-2xl font-bold mb-4">
-                <span className="text-[#b3001f]">Sammy</span>Store
+                <span className="text-[#f97316]">Sammy</span>Store
               </h3>
               <p className="text-gray-400">One wallet for virtual numbers, social media growth, and verified accounts.</p>
             </div>
             <div>
               <h4 className="font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#faq" className="hover:text-[#b3001f]">FAQ</a></li>
-                <li><a href="#how-it-works" className="hover:text-[#b3001f]">How It Works</a></li>
-                <li><Link href="/register" className="hover:text-[#b3001f]">Create Account</Link></li>
+                <li><a href="#faq" className="hover:text-[#f97316]">FAQ</a></li>
+                <li><a href="#how-it-works" className="hover:text-[#f97316]">How It Works</a></li>
+                <li><Link href="/register" className="hover:text-[#f97316]">Create Account</Link></li>
               </ul>
             </div>
             <div>

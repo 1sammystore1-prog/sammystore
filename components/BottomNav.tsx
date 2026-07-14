@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 
 const TABS = [
   { href: '/dashboard', label: 'Home', icon: '🏠' },
+  { href: '/services', label: 'Browse', icon: '🗂️' },
+  { href: '/cart', label: 'Cart', icon: '🛒' },
   { href: '/orders', label: 'Orders', icon: '📦' },
-  { href: '/numbers', label: 'Numbers', icon: '📞' },
-  { href: '/fund', label: 'Wallet', icon: '💳' },
   { href: '/history', label: 'Account', icon: '👤' },
 ];
 
@@ -14,7 +14,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0f0f16] border-t border-[#2a2a3a] flex justify-around items-center py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 flex justify-around items-center py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
       {TABS.map((tab) => {
         const active = pathname === tab.href;
         return (
@@ -27,8 +27,8 @@ export default function BottomNav() {
               {tab.icon}
             </span>
             <span
-              className={`text-[10px] font-mono ${
-                active ? 'text-[#e11d3f] font-bold' : 'text-[#a0a0b0]'
+              className={`text-[10px] font-medium ${
+                active ? 'text-[#f97316] font-bold' : 'text-gray-500'
               }`}
             >
               {tab.label}

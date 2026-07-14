@@ -127,7 +127,7 @@ export default function AccountDetailPage() {
           <Sidebar />
           <main className="flex-1 p-6 md:p-8">
             <p className="text-gray-600 mb-4">Product not found.</p>
-            <Link href="/accounts" className="text-[#b3001f] font-semibold">← Back to Buy Accounts</Link>
+            <Link href="/accounts" className="text-[#f97316] font-semibold">← Back to Buy Accounts</Link>
           </main>
         </div>
       </div>
@@ -140,13 +140,13 @@ export default function AccountDetailPage() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/accounts" className="text-sm text-gray-500 hover:text-[#b3001f] mb-4 inline-block">
+          <Link href="/accounts" className="text-sm text-gray-500 hover:text-[#f97316] mb-4 inline-block">
             ← Back to Buy Accounts
           </Link>
 
           <div className="mb-8">
             {product.category && (
-              <span className="inline-block text-xs font-semibold text-[#b3001f] bg-primary-50 px-2 py-1 rounded-full mb-3">
+              <span className="inline-block text-xs font-semibold text-[#f97316] bg-primary-50 px-2 py-1 rounded-full mb-3">
                 {product.category}
               </span>
             )}
@@ -178,7 +178,7 @@ export default function AccountDetailPage() {
                       />
                     </div>
                   ) : (
-                    <a href={product.video} target="_blank" rel="noopener noreferrer" className="text-[#b3001f] font-semibold underline">
+                    <a href={product.video} target="_blank" rel="noopener noreferrer" className="text-[#f97316] font-semibold underline">
                       Watch Tutorial
                     </a>
                   )}
@@ -194,7 +194,7 @@ export default function AccountDetailPage() {
 
             <div className="card p-6 h-fit">
               <p className="text-sm text-gray-600 mb-1">Price per unit</p>
-              <p className="text-2xl font-bold text-[#b3001f] mb-4">₦{unitPrice.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-[#f97316] mb-4">₦{unitPrice.toLocaleString()}</p>
 
               <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
               <input
@@ -236,7 +236,7 @@ export default function AccountDetailPage() {
               </div>
 
               {cartMsg && (
-                <div className="mt-3 p-3 rounded-lg bg-primary-50 text-[#b3001f] text-sm font-semibold">
+                <div className="mt-3 p-3 rounded-lg bg-primary-50 text-[#f97316] text-sm font-semibold">
                   {cartMsg}
                 </div>
               )}

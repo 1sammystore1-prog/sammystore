@@ -40,7 +40,7 @@ export default function AccountsPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b3001f] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f97316] mx-auto mb-4"></div>
           <p className="text-gray-600">Loading products...</p>
         </div>
       </div>
@@ -53,10 +53,10 @@ export default function AccountsPage() {
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         <Sidebar />
         <main className="flex-1 p-6 md:p-8">
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
-          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#b3001f] mb-4 transition-colors">
+          <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#f97316] mb-4 transition-colors">
             ← Back to Dashboard
           </Link>
           <div className="mb-8">
@@ -71,8 +71,8 @@ export default function AccountsPage() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                   selectedCategory === category
-                    ? 'bg-[#b3001f] text-white'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:border-[#b3001f]'
+                    ? 'bg-[#f97316] text-white'
+                    : 'bg-white text-gray-600 border border-gray-300 hover:border-[#f97316]'
                 }`}
               >
                 {category}
@@ -88,17 +88,17 @@ export default function AccountsPage() {
                 <Link
                   key={product.id}
                   href={`/accounts/${product.id}`}
-                  className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#b3001f] block"
+                  className="card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#f97316] block"
                 >
                   {product.category && (
-                    <span className="inline-block text-xs font-semibold text-[#b3001f] bg-primary-50 px-2 py-1 rounded-full mb-2">
+                    <span className="inline-block text-xs font-semibold text-[#f97316] bg-primary-50 px-2 py-1 rounded-full mb-2">
                       {product.category}
                     </span>
                   )}
                   <h3 className="text-lg font-bold text-gray-800 mb-2">
                     {product.name || product.title}
                   </h3>
-                  <p className="text-2xl font-bold text-[#b3001f] mb-2">
+                  <p className="text-2xl font-bold text-[#f97316] mb-2">
                     ₦{parseFloat(product.price || '0').toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-600">
