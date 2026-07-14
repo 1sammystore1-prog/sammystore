@@ -67,18 +67,18 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary text-lg px-8">
+            <a href="#how-it-works" className="btn-primary text-lg px-8 inline-block text-center">
               Watch how to use our site and more →
-            </button>
-            <button className="btn-secondary text-lg px-8">
+            </a>
+            <a href="#services" className="btn-secondary text-lg px-8 inline-block text-center">
               Tap below to browse Services ↓
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* Services Grid */}
-      <section className="py-16">
+      <section id="services" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href="/accounts" className="card p-6 text-center group">
@@ -135,7 +135,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-gradient-to-br from-primary-50 to-white">
+      <section id="how-it-works" className="py-16 bg-gradient-to-br from-primary-50 to-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">How To Get Started</h2>
           <p className="text-gray-600 mb-12">Get what you need in minutes; simple, fast, and secure</p>
