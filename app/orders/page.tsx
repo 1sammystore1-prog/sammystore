@@ -65,19 +65,23 @@ function OrdersInner() {
   const renderAccountData = (accountData: any) => {
     if (!accountData) return null;
     if (typeof accountData === 'object') {
-      return Object.entries(accountData).map(([key, value]) => (
-        <div key={key} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-          <span className="text-gray-400 text-xs uppercase">{key}</span>
-          <span className="flex items-center text-gray-800">
-            {String(value)}
-            <CopyButton text={String(value)} />
-          </span>
+      return (
+        <div className="space-y-2">
+          {Object.entries(accountData).map(([key, value]) => (
+            <div key={key} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+              <p className="text-gray-400 text-[10px] uppercase font-semibold mb-1">{key}</p>
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-gray-800 text-sm break-all whitespace-pre-wrap">{String(value)}</span>
+                <CopyButton text={String(value)} />
+              </div>
+            </div>
+          ))}
         </div>
-      ));
+      );
     }
     return (
-      <div className="flex items-center justify-between">
-        <span className="text-gray-800">{String(accountData)}</span>
+      <div className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-start justify-between gap-2">
+        <span className="text-gray-800 text-sm break-all whitespace-pre-wrap">{String(accountData)}</span>
         <CopyButton text={String(accountData)} />
       </div>
     );

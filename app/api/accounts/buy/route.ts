@@ -5,6 +5,7 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Transaction from '@/models/Transaction';
 import { getMarkups, computeMarkup } from '@/lib/pricing';
+import { cleanAccountData } from '@/lib/accountData';
 
 function pickStock(obj: any): number | null {
   if (!obj) return null;
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
           productName: product.name || product.title || null,
           category: product.category || null,
           quantity: qty,
-          accountData: data,
+          accountData: cleanAccountData(data),
           instructions: product.instructions || null,
           video: product.video || null,
         }
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: 'Purchase successful!',
-        accountData: data,
+        accountData: cleanAccountData(data),
         newBalance: debited.walletBalance,
         orderId: String(txn._id)
       });

@@ -7,6 +7,7 @@ import User from '@/models/User';
 import Transaction from '@/models/Transaction';
 import Cart from '@/models/Cart';
 import { getMarkups, computeMarkup, toNgn } from '@/lib/pricing';
+import { cleanAccountData } from '@/lib/accountData';
 
 function extractProducts(data: any): any[] {
   if (Array.isArray(data)) return data;
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
             productName: item.name,
             category: item.category || null,
             quantity: item.quantity,
-            accountData: data,
+            accountData: cleanAccountData(data),
           },
         });
       } catch (txError) {
