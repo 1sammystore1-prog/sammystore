@@ -165,12 +165,38 @@ export default function CatalogPage() {
 
       {result && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Purchase Successful!</h2>
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setResult(null)}
+              aria-label="Close"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-bold text-gray-800 mb-2 pr-8">Purchase Successful!</h2>
             <p className="text-gray-600 text-sm mb-4">{result.productName}</p>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-              <p className="text-xs text-gray-500 mb-1">Your account details</p>
-              <p className="font-mono text-sm text-gray-800 whitespace-pre-wrap break-words">{result.credentials}</p>
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Your account details</p>
+              <div className="space-y-2">
+                {result.credentials
+                  .split('\n')
+                  .map((line) => line.trim())
+                  .filter((line) => line.length > 0)
+                  .map((line, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-gray-200 rounded-lg p-3 bg-gray-50 flex items-start justify-between gap-2"
+                    >
+                      <span className="text-gray-800 text-sm font-mono break-all whitespace-pre-wrap">{line}</span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(line)}
+                        className="flex-shrink-0 px-2 py-1 text-xs rounded bg-white border border-gray-200 text-[#f97316] hover:bg-orange-50 font-semibold"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  ))}
+              </div>
             </div>
             <p className="text-xs text-gray-400 mb-4">
               This is also saved in your Order History if you need to find it again later.
@@ -182,7 +208,7 @@ export default function CatalogPage() {
                 }}
                 className="btn-secondary flex-1 text-sm py-2"
               >
-                Copy
+                Copy All
               </button>
               <button onClick={() => setResult(null)} className="btn-primary flex-1 text-sm py-2">
                 Done

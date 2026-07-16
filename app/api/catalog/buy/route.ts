@@ -49,6 +49,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Insufficient funds' }, { status: 400 });
   }
 
+  // Admin enters credentials as freeform text and often puts multiple
+  // fields on separate lines (email, password, recovery, etc.) - split
+  // those into individually labeled entries instead of one merged blob,
+  // so the Orders page shows each line with its own copy button.
+  const credentialLines = item.credentials
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  const accountData =
+    credentialLines.length <= 1
+      ? { Details: item.credentials }
+      : Object.fromEntries(credentialLines.map((line, i) => [`Line ${i + 1}`, line]));
+
   const txn = await Transaction.create({
     userId,
     type: 'account_purchase',
@@ -60,7 +73,7 @@ export async function POST(request: Request) {
       productId: String(product._id),
       productName: product.name,
       category: product.category,
-      accountData: { Details: item.credentials },
+      accountData,
       instructions: product.instructions || null,
     },
   });
