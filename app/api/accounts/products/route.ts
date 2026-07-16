@@ -13,6 +13,7 @@ async function fetchAccszoneProducts(markupPercent: number): Promise<{ products:
       id: `accszone_${listing.id}`,
       name: listing.title,
       category: listing.subcategory?.title || listing.category?.title || 'Other',
+      mainCategory: listing.category?.title || 'Other',
       // AccsZone prices in USD - convert to NGN before applying markup,
       // same conversion already used for the TigerSMS numbers feature.
       price: computeMarkup(toNgn(parseFloat(listing.price) || 0), markupPercent),
