@@ -499,6 +499,7 @@ export default function VirtualNumbersPage() {
           country: benotpCountry.trim() || undefined,
           areaCode: benotpAreaCode.trim() || undefined,
           carrier: benotpCarrier.trim() || undefined,
+          poolId: benotpPool === 'all1' ? (benotpSelectedPoolId || undefined) : undefined,
         }),
       });
       const data = await res.json();

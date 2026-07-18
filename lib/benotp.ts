@@ -71,9 +71,9 @@ function parseGetNumberResponse(pool: BenotpPool, data: any) {
 
 export async function getNumber(
   pool: BenotpPool,
-  opts: { service: string; country?: string; areaCode?: string; carrier?: string; quantity?: string }
+  opts: { service: string; country?: string; areaCode?: string; carrier?: string; quantity?: string; poolId?: string }
 ) {
-  const { service, country, areaCode, carrier, quantity } = opts;
+  const { service, country, areaCode, carrier, quantity, poolId } = opts;
 
   let params: Record<string, any>;
   switch (pool) {
@@ -84,7 +84,13 @@ export async function getNumber(
       params = { action: 'getNumber', service, country: 'usa', carrier, area_codes: areaCode };
       break;
     case 'all1':
-      params = { action: 'getNumber', service, country, areacode: areaCode, quantity };
+      // pool selects a specific sub-pool (e.g. "Foxtrot" vs "Sierra" from
+      // getAll1Pools) which can have a materially different price/stock
+      // than the generic getPrice quote - matches the "pool" query param
+      // BenOTP's own captured requests already tag onto other all1/all2
+      // actions (getServices, getPrices, getActiveActivations all showed
+      // &pool=7 on 2026-07-18).
+      params = { action: 'getNumber', service, country, areacode: areaCode, quantity, pool: poolId };
       break;
     case 'all2':
       params = { action: 'getNumber', service, country };
@@ -220,9 +226,10 @@ export interface BenotpPriceQuote {
 export async function getAll1Price(
   service: string,
   country: string,
-  areaCode?: string
+  areaCode?: string,
+  poolId?: string
 ): Promise<BenotpPriceQuote> {
-  const data = await benotpRequest('all1', { action: 'getPrice', service, country, areacode: areaCode });
+  const data = await benotpRequest('all1', { action: 'getPrice', service, country, areacode: areaCode, pool: poolId });
 
   if (typeof data !== 'string') {
     throw new Error(`BenOTP (${poolLabel('all1')}) returned an unrecognized getPrice response`);
