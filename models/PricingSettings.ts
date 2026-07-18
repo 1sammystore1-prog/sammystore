@@ -27,11 +27,10 @@ const PricingSettingsSchema: Schema<IPricingSettings> = new Schema(
       smm: { type: Number, default: 20 },
       accounts: { type: Number, default: 20 },
     },
-    // Flat admin-set NGN price per BenOTP pool, charged per number - unlike
-    // the percentage markups above, since BenOTP doesn't expose reliable
-    // live per-service pricing across all 4 pools (only "All Countries 1"
-    // documents a getPrice endpoint), a flat price is the only option that
-    // doesn't require guessing at undocumented response shapes.
+    // Flat admin-set NGN price per BenOTP pool, charged per number ONLY as
+    // a fallback when a live per-service price lookup fails - all 4 pools
+    // now have a working live pricing path (see lib/benotp.ts), so this is
+    // a safety net, not the normal price.
     benotpPrices: {
       usa1: { type: Number, default: 500 },
       usa2: { type: Number, default: 500 },

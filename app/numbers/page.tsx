@@ -387,7 +387,7 @@ export default function VirtualNumbersPage() {
 
   const handleBenotpBuy = async () => {
     if (!benotpService.trim()) {
-      setBenotpError('Please enter a service code');
+      setBenotpError('Please select a service');
       return;
     }
     const token = localStorage.getItem('token');
