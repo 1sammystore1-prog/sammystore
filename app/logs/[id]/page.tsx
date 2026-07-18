@@ -170,7 +170,7 @@ export default function LogDetailPage() {
                 {product.category}
               </span>
             )}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 break-words">
               {product.name || product.title}
             </h1>
             {outOfStock ? (

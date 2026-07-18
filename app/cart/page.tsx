@@ -146,8 +146,8 @@ export default function CartPage() {
           {items.length === 0 ? (
             <div className="card p-10 text-center">
               <p className="text-gray-600 mb-4">Your cart is empty</p>
-              <Link href="/services" className="btn-primary inline-block">
-                Browse Services
+              <Link href="/dashboard" className="btn-primary inline-block">
+                Start Shopping
               </Link>
             </div>
           ) : (

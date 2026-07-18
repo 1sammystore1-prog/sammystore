@@ -122,10 +122,7 @@ export default function Home() {
       <section id="services" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 text-center">Everything in one place</h2>
-          <p className="text-gray-600 text-center mb-4">One wallet. Zero friction.</p>
-          <p className="text-center mb-12">
-            <Link href="/services" className="text-[#f97316] font-semibold">Browse full catalog →</Link>
-          </p>
+          <p className="text-gray-600 text-center mb-12">One wallet. Zero friction.</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href="/numbers" className="card p-6 text-center group">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">

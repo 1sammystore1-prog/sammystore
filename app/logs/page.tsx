@@ -261,7 +261,7 @@ export default function LogsPage() {
                     <Link
                       key={product.id}
                       href={`/logs/${product.id}`}
-                      className={`card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#f97316] block relative ${
+                      className={`card p-6 cursor-pointer transition-all border-2 border-transparent hover:border-[#f97316] block relative min-w-0 overflow-hidden ${
                         product.stock === 0 ? 'opacity-60' : ''
                       }`}
                     >
@@ -277,7 +277,7 @@ export default function LogsPage() {
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2 break-words">
                         {product.name || product.title}
                       </h3>
                       <p className="text-2xl font-bold text-[#f97316] mb-2">
