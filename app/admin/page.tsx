@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const CATEGORY_LABELS: Record<string, string> = {
-  numbers: 'Virtual Numbers (TigerSMS)',
+  numbers: 'Virtual Numbers (TigerSMS + BenOTP)',
   smm: 'SMM Panel',
-  accounts: 'Buy Accounts',
+  accounts: 'Buy Accounts + Buy Logs',
 };
 
 const BENOTP_POOL_LABELS: { key: string; label: string }[] = [
