@@ -116,13 +116,19 @@ async function handleHstoraPurchase(productId: string, qty: number, userId: stri
     );
   }
 
-  const baseUnitPriceUsd = product.price;
-  if (isNaN(baseUnitPriceUsd) || baseUnitPriceUsd <= 0) {
+  const baseUnitPrice = product.price;
+  if (isNaN(baseUnitPrice) || baseUnitPrice <= 0) {
     return NextResponse.json({ success: false, error: 'Invalid product price' }, { status: 500 });
   }
 
   const markups = await getMarkups();
-  const unitPrice = computeMarkup(toNgn(baseUnitPriceUsd), markups.accounts);
+  // Trust HStora's own `currency` field rather than assuming USD - see the
+  // matching fix in /api/accounts/products.
+  const baseUnitPriceNgn =
+    product.currency && product.currency.toUpperCase() !== 'USD'
+      ? baseUnitPrice
+      : toNgn(baseUnitPrice);
+  const unitPrice = computeMarkup(baseUnitPriceNgn, markups.accounts);
   const cost = unitPrice * qty;
 
   const debited = await User.findOneAndUpdate(

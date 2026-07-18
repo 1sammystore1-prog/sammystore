@@ -41,8 +41,16 @@ async function fetchHstoraProducts(markupPercent: number): Promise<{ products: a
       name: listing.name,
       category: 'Other',
       mainCategory: 'Other',
-      // HStora prices in USD - same NGN conversion used for buyacc1/numbers.
-      price: computeMarkup(toNgn(listing.price || 0), markupPercent),
+      // HStora's /catalog response includes a `currency` field per listing -
+      // trust that instead of assuming USD (a hardcoded USD assumption is
+      // exactly what caused the BenOTP numbers pricing bug to overcharge
+      // ~1550x when that provider's prices turned out to already be NGN).
+      price: computeMarkup(
+        listing.currency && listing.currency.toUpperCase() !== 'USD'
+          ? (listing.price || 0)
+          : toNgn(listing.price || 0),
+        markupPercent
+      ),
       stock: typeof listing.stock_available === 'number' ? listing.stock_available : null,
       instructions: listing.short_description || null,
       video: null,

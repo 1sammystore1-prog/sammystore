@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAll1Price } from '@/lib/benotp';
-import { toNgn, getMarkups, computeMarkup } from '@/lib/pricing';
+import { getMarkups, computeMarkup } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +30,9 @@ export async function GET(req: Request) {
       success: true,
       service: quote.service,
       count: quote.count,
-      priceNgn: computeMarkup(toNgn(quote.price), markups.numbers),
+      // BenOTP's getPrice already returns NGN, not USD - see the note in
+      // /api/numbers/benotp/services for why toNgn() must not wrap this.
+      priceNgn: computeMarkup(quote.price, markups.numbers),
     });
   } catch (e: any) {
     console.error('BenOTP getAll1Price error:', e);

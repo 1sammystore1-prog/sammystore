@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getNumber, cancelNumber, poolLabel, getServices, getAll1Price, BenotpPool } from '@/lib/benotp';
-import { getBenotpPrices, getMarkups, toNgn, computeMarkup } from '@/lib/pricing';
+import { getBenotpPrices, getMarkups, computeMarkup } from '@/lib/pricing';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Transaction from '@/models/Transaction';
@@ -30,14 +30,17 @@ async function resolveLivePriceNgn(
     const match = services.find((s) => s.service === service);
     if (!match) return null;
     if (match.available === false) return null;
-    return computeMarkup(toNgn(match.price), markups.numbers);
+    // BenOTP's price is already NGN, not USD - see note in lib/benotp.ts /
+    // the services route. Do not wrap in toNgn() here either, or a
+    // customer gets charged ~1550x the quoted price.
+    return computeMarkup(match.price, markups.numbers);
   }
 
   if (pool === 'all1') {
     if (!country) return null;
     const quote = await getAll1Price(service, country, areaCode);
     if (!quote || quote.price <= 0 || quote.count <= 0) return null;
-    return computeMarkup(toNgn(quote.price), markups.numbers);
+    return computeMarkup(quote.price, markups.numbers);
   }
 
   return null; // all2 falls back to flat pricing below

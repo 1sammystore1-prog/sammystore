@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServices } from '@/lib/benotp';
-import { toNgn, getMarkups, computeMarkup } from '@/lib/pricing';
+import { getMarkups, computeMarkup } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,11 @@ export async function GET(req: Request) {
     const withNgnPrice = services
       .map((s) => ({
         ...s,
-        priceNgn: computeMarkup(toNgn(s.price), markups.numbers),
+        // BenOTP returns `price` already in NGN (not USD) - do NOT wrap
+        // this in toNgn(), or it gets multiplied by USD_TO_NGN_RATE again
+        // and inflates every price ~1550x (e.g. a real ₦3,700 service was
+        // showing as ₦6,877,012).
+        priceNgn: computeMarkup(s.price, markups.numbers),
       }))
       .sort((a, b) => a.priceNgn - b.priceNgn);
 
