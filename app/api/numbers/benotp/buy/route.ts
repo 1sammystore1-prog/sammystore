@@ -20,7 +20,8 @@ async function resolveLivePriceNgn(
   pool: BenotpPool,
   service: string,
   country: string | undefined,
-  areaCode: string | undefined
+  areaCode: string | undefined,
+  poolId: string | undefined
 ): Promise<number | null> {
   const markups = await getMarkups();
 
@@ -38,7 +39,7 @@ async function resolveLivePriceNgn(
   if (pool === 'all1' || pool === 'all2') {
     if (!country) return null;
     const quote = pool === 'all1'
-      ? await getAll1Price(service, country, areaCode)
+      ? await getAll1Price(service, country, areaCode, poolId)
       : await getAll2Price(service, country, areaCode);
     if (!quote || quote.price <= 0 || quote.count <= 0) return null;
     return computeMarkup(quote.price, markups.numbers);
@@ -55,9 +56,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { pool, service, country, areaCode, carrier } = await request.json();
+  const { pool, service, country, areaCode, carrier, poolId } = await request.json();
   if (!pool || !VALID_POOLS.includes(pool) || !service) {
     return NextResponse.json({ error: 'Pool and service are required' }, { status: 400 });
+  }
+  if ((pool === 'all1' || pool === 'all2') && !country) {
+    return NextResponse.json({ error: 'Country is required for this pool' }, { status: 400 });
   }
 
   const user = await User.findById(userId);
@@ -71,7 +75,7 @@ export async function POST(request: Request) {
   try {
     let priceNgn: number | null = null;
     try {
-      priceNgn = await resolveLivePriceNgn(pool, service, country, areaCode);
+      priceNgn = await resolveLivePriceNgn(pool, service, country, areaCode, poolId);
     } catch (priceError: any) {
       console.error(`BenOTP live price lookup failed (${pool}/${service}):`, priceError?.message || priceError);
       priceNgn = null;
@@ -106,7 +110,7 @@ export async function POST(request: Request) {
 
     let order;
     try {
-      order = await getNumber(pool, { service, country, areaCode, carrier });
+      order = await getNumber(pool, { service, country, areaCode, carrier, poolId });
     } catch (buyError: any) {
       await User.findByIdAndUpdate(userId, { $inc: { walletBalance: priceNgn } });
       console.error('BenOTP purchase failed:', buyError?.message || buyError);

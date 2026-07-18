@@ -71,9 +71,9 @@ function parseGetNumberResponse(pool: BenotpPool, data: any) {
 
 export async function getNumber(
   pool: BenotpPool,
-  opts: { service: string; country?: string; areaCode?: string; carrier?: string; quantity?: string }
+  opts: { service: string; country?: string; areaCode?: string; carrier?: string; quantity?: string; poolId?: string }
 ) {
-  const { service, country, areaCode, carrier, quantity } = opts;
+  const { service, country, areaCode, carrier, quantity, poolId } = opts;
 
   let params: Record<string, any>;
   switch (pool) {
@@ -84,7 +84,13 @@ export async function getNumber(
       params = { action: 'getNumber', service, country: 'usa', carrier, area_codes: areaCode };
       break;
     case 'all1':
-      params = { action: 'getNumber', service, country, areacode: areaCode, quantity };
+      // pool selects a specific sub-pool (e.g. "Foxtrot" vs "Sierra" from
+      // getAll1Pools) which can have a materially different price/stock
+      // than the generic getPrice quote - matches the "pool" query param
+      // BenOTP's own captured requests already tag onto other all1/all2
+      // actions (getServices, getPrices, getActiveActivations all showed
+      // &pool=7 on 2026-07-18).
+      params = { action: 'getNumber', service, country, areacode: areaCode, quantity, pool: poolId };
       break;
     case 'all2':
       params = { action: 'getNumber', service, country };
@@ -220,9 +226,10 @@ export interface BenotpPriceQuote {
 export async function getAll1Price(
   service: string,
   country: string,
-  areaCode?: string
+  areaCode?: string,
+  poolId?: string
 ): Promise<BenotpPriceQuote> {
-  const data = await benotpRequest('all1', { action: 'getPrice', service, country, areacode: areaCode });
+  const data = await benotpRequest('all1', { action: 'getPrice', service, country, areacode: areaCode, pool: poolId });
 
   if (typeof data !== 'string') {
     throw new Error(`BenOTP (${poolLabel('all1')}) returned an unrecognized getPrice response`);
@@ -309,4 +316,119 @@ export async function getBalance(pool: BenotpPool): Promise<number> {
     return parseFloat(data.balance);
   }
   return 0;
+}
+
+export interface BenotpCountryEntry {
+  id: string;
+  name: string;
+}
+
+// BenOTP's getCountries response for all1/all2 mixes two overlapping ID
+// namespaces in one object: real numeric IDs (e.g. "1" -> United States,
+// matching the classic SMS-Activate-style convention already used
+// elsewhere in this file) AND a separate alpha-code alias list (e.g.
+// "us" -> USA) that duplicates the same countries under different keys.
+// Confirmed against a real getCountries response on 2026-07-18: country=1
+// and country=US both resolve to the identical price/stock via getPrice,
+// so the numeric IDs alone are sufficient and correct - the alpha-key
+// entries are dropped here since including both is what caused every
+// country to appear twice in the dropdown.
+function parseCountries(data: any, poolLbl: string): BenotpCountryEntry[] {
+  if (!data || typeof data !== 'object') {
+    throw new Error(`BenOTP (${poolLbl}) returned an unrecognized getCountries response`);
+  }
+
+  const raw = Array.isArray(data)
+    ? data.map((c: any) => ({
+        id: String(c?.id ?? ''),
+        name: c?.name || c?.eng || c?.title || String(c?.id ?? ''),
+      }))
+    : Object.entries(data as Record<string, any>)
+        .filter(([code]) => /^\d+$/.test(code))
+        .map(([code, c]: [string, any]) => ({
+          id: code,
+          name: c?.name || c?.eng || c?.title || code,
+        }));
+
+  const seen = new Set<string>();
+  const deduped: BenotpCountryEntry[] = [];
+  for (const c of raw) {
+    if (!c.id || seen.has(c.id)) continue;
+    seen.add(c.id);
+    deduped.push(c);
+  }
+  return deduped.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function getAll1Countries(): Promise<BenotpCountryEntry[]> {
+  const data = await benotpRequest('all1', { action: 'getCountries' });
+  return parseCountries(data, poolLabel('all1'));
+}
+
+export async function getAll2Countries(): Promise<BenotpCountryEntry[]> {
+  const data = await benotpRequest('all2', { action: 'getCountries' });
+  return parseCountries(data, poolLabel('all2'));
+}
+
+export interface BenotpPoolOption {
+  poolId: string;
+  poolName: string;
+  price: number;
+  stock: number;
+  available: boolean;
+}
+
+// all1 (handler.php) getPools: confirmed live on 2026-07-18 - given a
+// service+country(+areacode), returns EVERY pool that can fulfil it with
+// its own price/stock, e.g. two pools ("Foxtrot", "Sierra") for the same
+// whatsapp+US combo at different prices/stock. This is all1-only - all2's
+// getPrices call already returns a single quote for whatever pool param
+// you pass it, it has no equivalent "list every pool" action.
+export async function getAll1Pools(
+  service: string,
+  country: string,
+  areaCode?: string
+): Promise<BenotpPoolOption[]> {
+  const data = await benotpRequest('all1', { action: 'getPools', service, country, areacode: areaCode });
+
+  if (!data || typeof data !== 'object' || !Array.isArray(data.available_pools)) {
+    throw new Error(`BenOTP (${poolLabel('all1')}) returned an unrecognized getPools response`);
+  }
+  return data.available_pools.map((p: any) => ({
+    poolId: String(p?.pool_id ?? ''),
+    poolName: p?.pool_name || String(p?.pool_id ?? ''),
+    price: parseFloat(p?.price) || 0,
+    stock: parseInt(p?.stock, 10) || 0,
+    available: !!p?.available,
+  }));
+}
+
+export interface BenotpActiveActivation {
+  id: string;
+  [key: string]: any;
+}
+
+export interface BenotpActiveActivationsResult {
+  activations: BenotpActiveActivation[];
+  balance: number;
+  currency: string;
+}
+
+// all2 (all_server_2.php) getActiveActivations: confirmed live on
+// 2026-07-18 - unlike getBalance elsewhere in this file, this bundles the
+// account balance/currency directly into the same response as the open
+// activations list, e.g. {"status":"success","activeActivations":[],
+// "total":0,"balance":"4325.96","currency":"NGN"}. all2-only per request -
+// all1 has no equivalent action confirmed.
+export async function getAll2ActiveActivations(): Promise<BenotpActiveActivationsResult> {
+  const data = await benotpRequest('all2', { action: 'getActiveActivations' });
+
+  if (!data || typeof data !== 'object' || !Array.isArray(data.activeActivations)) {
+    throw new Error(`BenOTP (${poolLabel('all2')}) returned an unrecognized getActiveActivations response`);
+  }
+  return {
+    activations: data.activeActivations,
+    balance: parseFloat(data.balance) || 0,
+    currency: data.currency || '',
+  };
 }

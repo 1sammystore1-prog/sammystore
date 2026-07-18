@@ -55,6 +55,14 @@ export default function VirtualNumbersPage() {
   const [benotpService, setBenotpService] = useState('');
   const [benotpCountry, setBenotpCountry] = useState('');
   const [benotpAreaCode, setBenotpAreaCode] = useState('');
+  const [benotpCountries, setBenotpCountries] = useState<{ id: string; name: string }[]>([]);
+  const [benotpCountriesLoading, setBenotpCountriesLoading] = useState(false);
+  const [benotpCountriesError, setBenotpCountriesError] = useState('');
+  const [benotpPools, setBenotpPools] = useState<{ poolId: string; poolName: string; price: number; stock: number; available: boolean }[]>([]);
+  const [benotpPoolsLoading, setBenotpPoolsLoading] = useState(false);
+  const [benotpSelectedPoolId, setBenotpSelectedPoolId] = useState('');
+  const [benotpActiveActivations, setBenotpActiveActivations] = useState<{ balance: number; currency: string; activations: any[] } | null>(null);
+  const [benotpActivationsLoading, setBenotpActivationsLoading] = useState(false);
   const [benotpCarrier, setBenotpCarrier] = useState('');
   // Live priced catalog for usa1/usa2.
   const [benotpServices, setBenotpServices] = useState<
@@ -212,6 +220,86 @@ export default function VirtualNumbersPage() {
 
     loadDirectory();
   }, [provider, benotpPool, benotpPool === 'all2' ? benotpCountry : null]);
+
+  useEffect(() => {
+    if (provider !== 'benotp' || (benotpPool !== 'all1' && benotpPool !== 'all2')) {
+      setBenotpCountries([]);
+      return;
+    }
+    const loadBenotpCountries = async () => {
+      try {
+        setBenotpCountriesLoading(true);
+        setBenotpCountriesError('');
+        setBenotpCountry('');
+        const res = await fetch(`/api/numbers/benotp/countries?pool=${benotpPool}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.countries)) {
+          setBenotpCountries(data.countries);
+        } else {
+          setBenotpCountriesError(data.error || 'Failed to load countries');
+          setBenotpCountries([]);
+        }
+      } catch (err: any) {
+        setBenotpCountriesError('Network error: ' + err.message);
+        setBenotpCountries([]);
+      } finally {
+        setBenotpCountriesLoading(false);
+      }
+    };
+    loadBenotpCountries();
+  }, [provider, benotpPool]);
+
+  useEffect(() => {
+    if (provider !== 'benotp' || benotpPool !== 'all1' || !benotpService.trim() || !benotpCountry.trim()) {
+      setBenotpPools([]);
+      setBenotpSelectedPoolId('');
+      return;
+    }
+    const loadBenotpPools = async () => {
+      try {
+        setBenotpPoolsLoading(true);
+        setBenotpSelectedPoolId('');
+        const params = new URLSearchParams({ service: benotpService.trim(), country: benotpCountry.trim() });
+        if (benotpAreaCode.trim()) params.set('areacode', benotpAreaCode.trim());
+        const res = await fetch(`/api/numbers/benotp/pools?${params.toString()}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.pools)) {
+          setBenotpPools(data.pools);
+        } else {
+          setBenotpPools([]);
+        }
+      } catch {
+        setBenotpPools([]);
+      } finally {
+        setBenotpPoolsLoading(false);
+      }
+    };
+    loadBenotpPools();
+  }, [provider, benotpPool, benotpService, benotpCountry, benotpAreaCode]);
+
+  useEffect(() => {
+    if (provider !== 'benotp' || benotpPool !== 'all2') {
+      setBenotpActiveActivations(null);
+      return;
+    }
+    const loadActiveActivations = async () => {
+      try {
+        setBenotpActivationsLoading(true);
+        const res = await fetch('/api/numbers/benotp/activations');
+        const data = await res.json();
+        if (data.success) {
+          setBenotpActiveActivations({ balance: data.balance, currency: data.currency, activations: data.activations });
+        } else {
+          setBenotpActiveActivations(null);
+        }
+      } catch {
+        setBenotpActiveActivations(null);
+      } finally {
+        setBenotpActivationsLoading(false);
+      }
+    };
+    loadActiveActivations();
+  }, [provider, benotpPool]);
 
   // all1/all2 have no *priced* bulk catalog - price is looked up per
   // service+country pair once the customer has entered both. Debounced
@@ -411,6 +499,7 @@ export default function VirtualNumbersPage() {
           country: benotpCountry.trim() || undefined,
           areaCode: benotpAreaCode.trim() || undefined,
           carrier: benotpCarrier.trim() || undefined,
+          poolId: benotpPool === 'all1' ? (benotpSelectedPoolId || undefined) : undefined,
         }),
       });
       const data = await res.json();
@@ -831,17 +920,64 @@ export default function VirtualNumbersPage() {
             )}
 
             {(benotpPool === 'all1' || benotpPool === 'all2') && (
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-300 mb-2">Country Code</label>
-                <input
-                  type="text"
-                  value={benotpCountry}
-                  onChange={(e) => setBenotpCountry(e.target.value)}
-                  placeholder="e.g. 0 for Russia, 1 for USA - see the country list"
-                  className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#f97316] outline-none transition"
-                />
-              </div>
-            )}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    Country {benotpCountriesLoading && <span className="text-gray-500">(loading countries...)</span>}
+                  </label>
+                  {benotpCountriesError && (
+                    <p className="text-sm text-red-400 mb-2">{benotpCountriesError}</p>
+                  )}
+                  <select
+                    value={benotpCountry}
+                    onChange={(e) => setBenotpCountry(e.target.value)}
+                    disabled={benotpCountriesLoading || benotpCountries.length === 0}
+                    className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#f97316] outline-none transition disabled:opacity-50"
+                  >
+                    <option value="">
+                      {benotpCountriesLoading ? 'Loading countries...' : 'Select a country'}
+                    </option>
+                    {benotpCountries.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {benotpPool === 'all1' && benotpService.trim() && benotpCountry.trim() && (
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">
+                    Pool {benotpPoolsLoading && <span className="text-gray-500">(loading pools...)</span>}
+                  </label>
+                  <select
+                    value={benotpSelectedPoolId}
+                    onChange={(e) => setBenotpSelectedPoolId(e.target.value)}
+                    disabled={benotpPoolsLoading || benotpPools.length === 0}
+                    className="w-full p-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-[#f97316] outline-none transition disabled:opacity-50"
+                  >
+                    <option value="">
+                      {benotpPoolsLoading ? 'Loading pools...' : benotpPools.length === 0 ? 'No pools available' : 'Select a pool'}
+                    </option>
+                    {benotpPools.map((p) => (
+                      <option key={p.poolId} value={p.poolId} disabled={!p.available}>
+                        {p.poolName} - ₦{p.price.toLocaleString()} ({p.stock} in stock){!p.available ? ' (unavailable)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {benotpPool === 'all2' && benotpActiveActivations && (
+                <div className="mb-4 p-3 rounded-lg bg-gray-700 border border-gray-600 text-sm flex items-center justify-between">
+                  <span className="text-gray-400">
+                    Active activations: <span className="text-white font-semibold">{benotpActiveActivations.activations.length}</span>
+                  </span>
+                  <span className="text-gray-400">
+                    Balance: <span className="text-white font-semibold">{benotpActiveActivations.balance.toLocaleString()} {benotpActiveActivations.currency}</span>
+                  </span>
+                </div>
+              )}
 
             {(benotpPool === 'all1' || benotpPool === 'all2') && benotpService.trim() && benotpCountry.trim() && (
               <div className="mb-4 p-3 rounded-lg bg-gray-700 border border-gray-600 text-sm">
@@ -882,7 +1018,11 @@ export default function VirtualNumbersPage() {
 
             <button
               onClick={handleBenotpBuy}
-              disabled={!benotpService.trim() || benotpBuying}
+              disabled={
+                !benotpService.trim() ||
+                benotpBuying ||
+                ((benotpPool === 'all1' || benotpPool === 'all2') && !benotpCountry.trim())
+              }
               className="w-full bg-[#f97316] hover:bg-[#ea580c] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
             >
               {benotpBuying ? (
