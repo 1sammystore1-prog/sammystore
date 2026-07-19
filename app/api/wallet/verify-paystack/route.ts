@@ -4,6 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Transaction from '@/models/Transaction';
 import { getUserId } from '@/lib/auth';
+import { sendWalletFundedEmail } from '@/lib/email';
 
 // Completes a Paystack funding flow. Paystack redirects the user back to
 // our callback page with the reference in the URL, but a redirect alone is
@@ -135,6 +136,14 @@ export async function POST(request: Request) {
         }
       }
     }
+
+    // Fire-and-forget: don't let a slow/failed email delay or break the
+    // funding response - the wallet credit above already succeeded.
+    sendWalletFundedEmail({
+      to: user.email,
+      amount: txn.amount,
+      newBalance: finalBalance,
+    }).catch((err) => console.error('Wallet funded email failed:', err));
 
     return NextResponse.json({ success: true, newBalance: finalBalance, bonusAwarded });
   } catch (error: any) {
