@@ -6,7 +6,7 @@ import { getListing } from '@/lib/accszone';
 // list endpoint doesn't carry the full `description` (buyer instructions) field -
 // only the single listing endpoint does - so the product detail page hits this
 // route to fill that in instead of trusting the list response.
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const markups = await getMarkups();
 
   if (!process.env.ACCSZONE_API_KEY) {
@@ -16,7 +16,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     );
   }
 
-  const rawId = params.id.replace(/^buyacc1_/, '');
+  const { id } = await params;
+  const rawId = id.replace(/^buyacc1_/, '');
 
   try {
     const listing: any = await getListing(rawId);

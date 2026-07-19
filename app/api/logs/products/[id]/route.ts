@@ -7,7 +7,7 @@ import { getProduct, inferHstoraCategory } from '@/lib/hstora';
 // (buyer instructions) field - only the single product endpoint does - so
 // the product detail page hits this route to fill that in instead of
 // trusting the list response.
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const markups = await getMarkups();
 
   if (!process.env.HSTORA_API_KEY || !process.env.HSTORA_API_SECRET) {
@@ -17,7 +17,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     );
   }
 
-  const rawId = params.id.replace(/^buyacc2_/, '');
+  const { id } = await params;
+  const rawId = id.replace(/^buyacc2_/, '');
 
   try {
     const listing = await getProduct(rawId);
