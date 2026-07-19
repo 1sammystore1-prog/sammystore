@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface TicketMessage {
@@ -34,6 +34,7 @@ const STATUS_COLOR: Record<Ticket['status'], string> = {
 
 export default function AdminTicketsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -74,6 +75,12 @@ export default function AdminTicketsPage() {
   useEffect(() => {
     loadTickets();
   }, []);
+
+  useEffect(() => {
+    const ticketId = searchParams.get('ticket');
+    if (ticketId) openTicket(ticketId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const openTicket = async (id: string) => {
     try {

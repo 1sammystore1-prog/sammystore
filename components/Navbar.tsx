@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Logo from '@/components/Logo';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -58,13 +59,7 @@ export default function Navbar() {
       </form>
 
       <div className="flex items-center gap-4">
-        <Link
-          href="/search"
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          aria-label="Search"
-        >
-          <span className="text-xl">🔍</span>
-        </Link>
+        <NotificationBell />
         {balance !== null && (
           <Link
             href="/fund"
