@@ -67,6 +67,15 @@ export async function getAllListings(): Promise<AccszoneListing[]> {
   return all;
 }
 
+// The bulk /listings endpoint used by getAllListings() above only returns
+// summary fields for catalog browsing - it does not include the full
+// `description` text. That has to be fetched per-item from the single
+// listing endpoint instead, same as HStora's getProduct() below.
+export async function getListing(id: number | string): Promise<AccszoneListing> {
+  const data = await accszoneRequest('GET', `/listings/`);
+  return data.data;
+}
+
 export interface AccszonePurchaseResult {
   order_id: number;
   listing: string;

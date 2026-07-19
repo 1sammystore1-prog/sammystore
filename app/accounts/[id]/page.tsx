@@ -39,6 +39,16 @@ export default function AccountDetailPage() {
         console.error('Failed to fetch product:', error);
       }
       setLoading(false);
+
+      try {
+        const detailRes = await fetch(`/api/accounts/products/${productId}`);
+        const detailData = await detailRes.json();
+        if (detailData.success && detailData.product) {
+          setProduct((prev: any) => ({ ...(prev || {}), ...detailData.product }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch product detail:', error);
+      }
     };
     fetchProduct();
   }, [productId]);
