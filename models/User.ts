@@ -11,6 +11,8 @@ export interface IUser extends Document {
   suspendReason?: string;
   referralCode: string;
   referredBy?: mongoose.Types.ObjectId;
+  twoFactorSecret?: string;
+  twoFactorEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -27,6 +29,8 @@ const UserSchema: Schema<IUser> = new Schema(
     suspendReason: { type: String, default: '' },
     referralCode: { type: String, unique: true, sparse: true },
     referredBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    twoFactorSecret: { type: String, default: null },
+    twoFactorEnabled: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
