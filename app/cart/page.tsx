@@ -206,6 +206,7 @@ export default function CartPage() {
                   </p>
                 </div>
             
+              <a
               href="/refund-policy"
               className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 rounded-lg p-3 mb-4 hover:bg-gray-100 transition-colors"
             >
