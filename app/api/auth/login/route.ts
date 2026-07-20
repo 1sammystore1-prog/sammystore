@@ -6,7 +6,7 @@ import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   await dbConnect();
-  const { email, password } = await request.json();
+  const { email, password, twoFactorCode } = await request.json();
   if (!email || !password) {
     return NextResponse.json({ error: 'Please fill all fields' }, { status: 400 });
   }
