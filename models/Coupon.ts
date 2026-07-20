@@ -1,4 +1,4 @@
-import mongoose, { Schema, models, model } from 'mongoose';
+import mongoose, { Schema, models, model, Model } from 'mongoose';
 
 const CouponSchema = new Schema(
   {
@@ -15,4 +15,4 @@ const CouponSchema = new Schema(
   { timestamps: true }
 );
 
-export default models.Coupon || model('Coupon', CouponSchema);
+export default (models.Coupon as Model<any>) || model('Coupon', CouponSchema);
