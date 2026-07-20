@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import jwt from 'jsonwebtoken';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { authenticator } from 'otplib';
 
 export async function POST(request: Request) {
   await dbConnect();
