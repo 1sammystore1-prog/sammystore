@@ -1,9 +1,12 @@
 'use client';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 
 export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const ref = searchParams?.get('ref') || undefined;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,7 +25,7 @@ export default function RegisterPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, ref })
       });
 
       const data = await response.json();
