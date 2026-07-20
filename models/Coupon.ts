@@ -1,6 +1,20 @@
-import mongoose, { Schema, models, model, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-const CouponSchema = new Schema(
+export interface ICoupon extends Document {
+  code: string;
+  type: 'percent' | 'fixed';
+  value: number;
+  maxDiscount: number | null;
+  usageLimit: number | null;
+  usedCount: number;
+  perUserLimit: number | null;
+  expiresAt: Date | null;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const CouponSchema = new Schema<ICoupon>(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true },
     type: { type: String, enum: ['percent', 'fixed'], required: true },
@@ -15,4 +29,4 @@ const CouponSchema = new Schema(
   { timestamps: true }
 );
 
-export default (models.Coupon as Model<any>) || model('Coupon', CouponSchema);
+export default (mongoose.models.Coupon as Model<ICoupon>) || mongoose.model<ICoupon>('Coupon', CouponSchema);
